@@ -1,0 +1,57 @@
+\section{Related work}\label{sec:relatedwork}
+
+Speech enhancement is an essential function in voice communication that has received extensive attention. We categorize existing speech enhancement methods based on the input modalities, i.e., \textit{audio-only}, \textit{multi-modal}, as well as works sensing acoustic signals with other modalities.
+
+\subsection{Audio-only Speech Enhancement}
+
+\subsubsection{Model-driven}
+Traditional speech enhancement either relies on assumptions of stationarity of signals, independence of speech, noise in the time-frequency domain \citep{ephraim1995signal}, or multiple omnidirectional microphones (e.g., a microphone array) to improve audio quality. The microphone array leverages the difference of arrival times (known as beamforming) toward each microphone to determine the direction of the speaker for speech enhancement \citep{yousefian2014hybrid,ji2017coherence}, and speech separation \citep{wood2017blind,kitamura2016determined}. However, those approaches cannot adapt to dealing with dynamic noises without prior knowledge.
+
+\subsubsection{Machine Learning}
+Recent studies adopt DNN \citep{subakan2021attention, zhang2021microphone, chatterjee2022clearbuds} for speech enhancement. The deep structure of neural networks can capture the inherited features of the target voice and potential noises based on a large training dataset.
+DNN-based methods work on both single-channel audio \citep{subakan2021attention} and multi-channel audio with arbitrary microphones layouts \citep{zhang2021microphone}. ClearBuds \citep{chatterjee2022clearbuds} uses a DNN to process the stereo audio recorded by customized earbuds, which causes excessive communication overhead. ClearBuds filters noises based on the angles of sources, which does not work when a competing speaker stands at the same angle as the speaker.
+Although audio-only deep learning speech enhancement achieves good performance, they rely on the training data domain and fail to enhance the speech quality with slim-volume audio.
+
+
+\subsection{Multi-Modal Speech Enhancement}
+Speech events involve the motions of several articulatory organs, such as the tongue, teeth, lips, jaw, and facial muscles, which can be leveraged for speech enhancement.
+
+\subsubsection{Audio and Visual}
+Researchers in \citep{michelsanti2021overview, gao2021visualvoice} leverage the video from a camera in the environment to correlate the audio and visual for speech enhancement and separation. 
+These approaches leverage deep learning and cross-modal embeddings to extract the target speech from noises. However, a visual sensor like a camera is not always available in daily usage. 
+
+\subsubsection{Audio and Wireless}
+The authors in \citep{sun2021ultrase, zhang2021sensing} use the smartphone's speaker to transmit an inaudible acoustic signal (i.e., higher than $17\,\text{kHz}$) and simultaneously receive the echo reflected by moving lips, which can be used to enhance the noisy audio. 
+\citep{liu2021wavoice, ozturk2021radiomic} use coupled mmWave and microphone recording for speech recognition rather than enhancing general speech contents. However, a mmWave radar is bulky and not common on HMWs, and the ultrasonic solution requires the user to fix the phone toward their mouth.
+
+\subsubsection{Audio and IMU}
+\label{subsubsec:related-audio-imu}
+Some recent works have exploited the noiseless speech information from a bone conduction sensor or the accelerometer and the microphone recording for multi-modal speech enhancement. 
+
+\citep{wang2022fusing} proposes a multi-modal DNN for speech enhancement trained by a self-collected dataset in Mandarin. However, the bandwidth of the vibration sensor is around 5~kHz, which is much higher than the one available on commercial devices \citep{Inertial63:online}.
+SEANet \citep{tagliasacchi2020seanet} uses a DNN to augment acceleration from audio with the same transformation among all users. However, the diverse bone shapes can lead to different transformations and thus affect the generalizability. 
+In addition, both works \citep{wang2022fusing, tagliasacchi2020seanet} focus on the design of deep learning models and fail to evaluate the systems with real-world noises and unseen users.
+
+\subsection{Sensing Acoustic Signals}
+
+IMU or piezoelectric sensor \citep{maruri2018v} can be installed on commercial devices to measure the contact sound, including unvoiced sound \citep{khanna2021jawsense}, breathing sounds \citep{gupta2018precision}, and eavesdropping smartphone/VR headset speaker \citep{ba2020learning, wang2021audio, su2021towards, shi2021face}. 
+Although various contact sensing technologies are developed for acoustic sensing, they can classify keywords and events only rather than reconstructing the full-spectrum audio.
+Previous works exploit remote acoustic sensing by correlating with several non-acoustic sensors (e.g., geophones, accelerometers, and gyroscopes) \citep{han2017pitchln}, using the LiDAR on a vacuum robot to predict acoustic signals from the vibrations on the surrounding surfaces \citep{sami2020spying}, or leveraging a mmWave Radar to achieve authentication \citep{li2020vocalprint}. 
+However, they can only detect a given set of speech contents like digits and music. Measurements in \citep{anand2018speechless} show that smartphone's motion sensor can only capture air-conducted acoustic vibrations remotely in limited use cases.
+
+
+\section{Background}\label{sec:background}
+\subsection{Audio Recording on HMWs}
+Although voice-related applications have been studied for decades, they usually exhibit unsatisfactory performance due to the following limitations. 
+First, to save space and cost, most microphones installed on HMWs are omnidirectional instead of directional microphones due to their bulkiness and limitations in general use cases such as recording environmental sounds (e.g., Logitech 650e \citep{Logitech34:online}, around 100 USD). The omnidirectional microphones pick up audio from any angle, so they inevitably record the interference signals, especially the speech of a competing speaker close to the target user.
+Second, although the latest HMWs usually equip multiple microphones for beamforming, the compact layout of the microphone array can impede the acoustic beamforming since the audio from different sources arrives at the microphones with only a minor time difference. Specifically, the microphone array's interval is much smaller than $\lambda_{min}/2$, while the $\lambda_{min}$ is the minimum wavelength of the interested frequency band.
+Third, the microphones on HMWs are farther away from the user’s mouth than wired earphones or standalone microphones since they are usually inserted into the ears or mounted around the eyes. Therefore, the received intensity of the speech audio can be significantly suppressed due to the slim air transmission. 
+Lastly, the worldwide pandemic forces people to wear facial masks, which can significantly reduce speech volume by up to 7dB \citep{porschmann2020impact}. 
+Hence, seeking another available transmission channel for robust speech sensing is desirable.
+
+\subsection{Bone-Conducted Vibrations}
+Existing commercial headphones leverage bone conduction \citep{Bonecond79:online} for inner ear hearing assistance. In this paper, we focus on the transmission from the vocal cord to the head skull, which can be detected by the contact microphone \citep{Contactm68:online}. 
+The noise-less feature of bone conduction sound has been discovered \citep{tagliasacchi2020seanet} with a bone conduction microphone. The professional bone-conducted microphone has also been applied in extremely harsh environments like battlefields or underwater applications \citep{EarBoneM7:online, BoneCond30:online}. However, there are still challenges to leveraging it for speech enhancement on HMWs. Firstly, as depicted in \citep{chang2016development, won2005estimating}, the propagation through the head is complicated, resulting in an unstable response even for the exact location. Secondly, although a professional bone-conducted microphone can capture a clear voice at a high sample rate, they are too expensive (e.g., 60 US dollars \citep{EarBoneM7:online, BoneCond30:online}) and not available on commercial HMWs.
+The current commercial-level vibration sensor may not provide sufficient sample rate and precision, leading to frequency aliasing and a bad signal-noise ratio.
+Some approaches tackle the problems by duplicating the signals of low-frequencies to high-frequency domain \citep{dietz2002spectral}, utilizing the time stretching to generate high-frequency harmony \citep{nagel2009harmonic}, or also trying to unfold the acceleration signals from low sample rate using deep learning \citep{wang2021audio}. However, these approaches are far from achieving satisfying performance because the speech in high frequency contains extra information than that in low frequency.
+As a result, a simple recovery on the high-frequency part can amplify the noise of acceleration and degrade the quality of the generated audio.

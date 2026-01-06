@@ -1,0 +1,17 @@
+\section{Discussion}
+\noindent\textbf{System overhead}.
+VibVoice can transmit the raw acceleration data to the mobile device at a bit rate of 153.6 kbps (6*16 bits*$1.6\,\text{kHz}$). The Bluetooth profiles like Hands-Free Profile (HFP) support a 16 kbps ($16\,\text{kHz}$) data rate, which is adequate to transmit the acceleration data under Bluetooth 5.0 \citep{Bluetoot0:online}. Besides, the data of IMU is also applicable to the compression codec, which can further reduce communication overhead.   
+
+Most head-mounted wearables run on the battery. The extra energy consumed by VibVoice is mainly ADC, which is 0.54 mW (i.e., $180 \mu A * 3 V$) \citep{Inertial63:online}. In contrast, each AirPods Pro earbud has a 43 mAh battery, which can support 3.5 hours of talking time. Hence, VibVoice only has an extra $1.5\%$ power consumption for earphones. Note that many earphones like AirPods Pro already have motion-related applications running (e.g., spatial audio \citep{spatial-audio}), in which VibVoice can share the data collection process.
+
+\noindent\textbf{Bone conduction function}.
+VibVoice shows that Bone Conduction Function can be estimated using the Gaussian distribution with a fine-tuning process. We note that some finite-element models can be used for bone-conduction sound simulation, which further improves the performance of VibVoice \citep{chang2016development}.
+
+\noindent\textbf{Language}.
+The data augmentation approach is based on the bone conduction effect of the user's skull, which contains no language-specific features, which means VibVoice can be generalized to any language.
+
+\noindent\textbf{Sensing location}.
+Based on our experience of extensive evaluations, we summarise two guidelines about the optimal placement of the IMU sensors on the user's head for the HMW manufacturers: 1) closer to the vibrating organ, and 2) a tight contact with the head. Meanwhile, it is also important to consider human comfort and compatibility with current devices.
+
+\noindent\textbf{Customized device}.
+We envision combining VibVoice with raw data before hardware processing. We use the same APIs to record audio from the commercial TWS microphone. The recorded audio is processed by the acoustic signal processing provided by the system, requiring the least system privileges and no extra hardware modification. However, as VibVoice is built upon the black-box output, the result can be biased sometimes due to the performance of hardware processing. For example, AirPods can wrongly suppress the sound and produce unnatural noise, which doesn't appear in our training dataset and is hardly predictable. VibVoice can perform better with access to raw data of the TWS/HMW's microphone array (i.e., used for active noise cancellation or acoustic beamforming).

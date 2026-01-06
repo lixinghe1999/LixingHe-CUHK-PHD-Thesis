@@ -119,11 +119,43 @@
 %\copyrightpage
 \committeepage
 \begin{abstract}
+  True Wireless Stereo (TWS) earphones are a key type of head-mounted wearable (HMW), which also includes VR/AR headsets and smart glasses. These smart devices are designed to be worn on the ears or head. Popular products like Apple AirPods have made earphones the largest segment in the wearable device market, with global shipments expected to surpass 18 billion units in market value by 2024.
+Typically, there are two main types of sensors on earphones: microphones and inertial measurement units (IMUs). Note that these technologies are commonly used in all head-mounted wearables, not just earphones.
+The sensing abilities of earphones are often limited because manufacturers prioritize delivering content, like spatial audio and 3D video. Therefore, this dissertation aims to enhance the sensing capabilities of earphones.
+Unlike existing research that typically focuses on either the environment or the user, our work uniquely models both. Furthermore, it is essential to consider the interactions, or coupling, between humans and their environment. By achieving a comprehensive understanding of this human-environment coupling, earphones can become a gateway to a smarter lifestyle for users.
+
+This dissertation specifically introduces \textit{VibVoice}, the first system designed for speech enhancement on existing head-mounted wearables (HMWs). Environmental noise can significantly interfere with voice-related applications on these devices, which represents one of the key interactions between humans and their surroundings.
+The compact design of HMWs presents significant challenges for existing solutions. To address this, we propose utilizing the bone-conduction effect of the user's voice to filter out background noise. The principle behind VibVoice is that the inertial measurement unit (IMU), which is commonly found in head-mounted wearables, can detect the user's clean voice through vibrations on the head. Hence, we design a two-branch encoder-decoder deep neural network to fuse the high-level features of the two modalities and reconstruct clean speech. To address the issue of insufficient paired data for training, we extensively measure the bone conduction effect from a limited dataset to extract the physical impulse function for cross-modal data augmentation. We evaluate VibVoice on multiple HMWs under diverse noises collected in the real world that outperform the two state-of-the-art baselines by a 52\% lower word error rate. 
+
+Then we try to extend the sensing capabilities of earphones to not only the vocal activity (speech). We propose \textit{EmbodiedSense}, a new earphone sensing system that leverages off-the-shelf sensors to recognize human activity without an unlimited number of classes.
+The design principle of EmbodiedSense is based on extracting extra information to assist in activity recognition. Firstly, we propose to recognize the
+long-term scenario that can benefit the activity recognition by clustering the relevant activities. Secondly, we incorporate sound localization to differentiate the user's sound (not only speech) and environmental noises, considering the natural head movement as well. Given the above knowledge, EmbodiedSense employs LLM to process sound and motion events to reason human activities effectively. EmbodiedSense outperforms other multi-modal LLM baselines with more than 20\% in our self-collected dataset as well as the public dataset.
+
+Finally, we scale up our system into a multi-device collaborative paradigm. Specifically, we propose \textit{CoHear} that enhances speech at the
+conversation level, which requires a holistic modeling of all the members in the conversation
+and an effective way to extract the speech from the mixture. CoHear makes two key contributions: 1) constructs a conversation network automatically, and 2) collaboratively extracts conversations. Specifically, we consider each earphone as a sensor node and estimate the network geometry by observing the natural conversation. Besides, our speech extraction model can leverage the transmitted audio to isolate the relevant part.  CoHear is evaluated
+in both real-world experiments and simulations with a more than 90\% accuracy in group formation,
+improving the speech quality by up to 8.8 dB over state-of-the-art baselines. In a user study
+with 20 participants, CoHear has a much higher score than baseline, with good usability.
+
+In summary, this dissertation proposes three different systems on HMWs with existing sensors to understand the user, environment, and the coupling between them. These systems provide not only detailed system implementation but also bring new insights into the mobile sensing community.
+
 \end{abstract}
 
 \begin{cabstract}
+  真无线立体声（TWS）耳机是头显可穿戴设备（HMW）的一种重要类型，其他类型还包括虚拟现实/增强现实（VR/AR）头显和智能眼镜。这些智能设备设计为佩戴在耳朵或头部。以苹果AirPods为代表的热门产品使耳机成为可穿戴设备市场中最大的细分市场，预计到2024年全球出货量市场价值将超过180亿美元。
 
+通常，头显可穿戴设备采用两种主要的感知技术：麦克风和惯性测量单元（IMU）。这些技术不仅限于耳机，而是广泛应用于所有头显可穿戴设备。然而，耳机的感知能力常常受限，因为制造商更专注于内容传递，例如空间音频和3D视频。因此，本论文旨在提升头显可穿戴设备的感知能力。
 
+与现有耳机感知研究不同，我们的工作独特地同时建模环境和用户，而非仅关注其中之一。此外，考虑人类与环境（包括其他个体）之间的交互（耦合）至关重要。
+
+本论文具体介绍了 VibVoice，这是首个为现有头显可穿戴设备设计的语音增强系统。环境噪声会显著干扰这些设备上的语音相关应用，这是人类与环境交互的关键方面之一。头显可穿戴设备的紧凑设计为现有解决方案带来了重大挑战。为此，我们提出利用用户语音的骨传导效应来滤除背景噪声。VibVoice 的原理是利用头显可穿戴设备中常见的惯性测量单元（IMU）通过头部振动检测用户的干净语音。因此，我们设计了一个双分支编码器-解码器深度神经网络，融合两种模态的高级特征并重建干净语音。为了解决训练数据不足的问题，我们从有限数据集中广泛测量骨传导效应，提取物理冲激函数用于跨模态数据增强。我们在多种头显可穿戴设备上评估了 VibVoice，在现实世界中收集的多种噪声环境下，其表现优于两个最先进的基线，词错误率降低了52\%。
+
+随后，我们尝试扩展耳机的感知能力，不仅限于语音活动（说话）。我们提出了 EmbodiedSense，一种利用现成传感器识别人类活动的新型耳机感知系统，且不限于固定数量的类别。EmbodiedSense 的设计原理基于提取额外信息以辅助活动识别。首先，我们提出通过聚类相关活动来识别长期场景，从而提升活动识别效果。其次，我们结合声音定位技术，区分用户的声音（不仅是语音）和环境噪声，同时考虑自然的头部运动。基于上述知识，EmbodiedSense 利用大语言模型（LLM）处理声音和运动事件，有效推理人类活动。在我们自收集的数据集以及公开数据集上，EmbodiedSense 的表现优于其他多模态大语言模型基线，准确率提高了20\%以上。
+
+最后，我们将系统扩展为多设备协作范式。具体来说，我们提出了 CoHear，它在对话层面增强语音，需要对对话中所有成员进行整体建模，并有效从混合音频中提取语音。CoHear 做出了两个关键贡献：1）自动构建对话网络；2）协作提取对话内容。具体而言，我们将每只耳机视为一个传感器节点，通过观察自然对话估计网络几何形状。此外，我们的语音提取模型可以利用传输的音频隔离相关部分。CoHear 在现实世界实验和仿真中进行了评估，在群体形成方面准确率超过90\%，语音质量比最先进的基线提高了高达8.8分贝。在一项包含20名参与者的用户研究中，CoHear 的得分远高于基线，表现出良好的可用性。
+
+总之，本论文提出了三种基于头显可穿戴设备现有传感器的系统，以理解用户、环境及其之间的耦合。这些系统不仅提供了详细的系统实现，还为移动感知社区带来了新的见解。
 \end{cabstract}
 
 % Center headings for table of contents, LOT, and LOF and make them smaller so
@@ -157,18 +189,18 @@
 % Don't number the intro chapter, but add to to the table of contents
 %\addcontentsline{toc}{chapter}{Introduction}
 \chapter{Introduction}\label{ch:intro}
-\input{chapters/intro}
+\input{chapters/chapter1-intro.tex}
 
 \chapter{Literature Review}\label{ch:background}
-\input{chapters/background}
+\input{chapters/chapter2-background.tex}
 
-\chapter{Chapter 3}\label{ch:ate}
+\chapter{VibVoice}\label{ch:vibvoice}
+\input{chapters/chapter3-vibvoice.tex}
 
-\chapter{Chapter 4}
+% \chapter{Chapter 4}
 
-\chapter{Chapter 5}
+% \chapter{Chapter 5}
 
-\chapter{...}
 
 
 
@@ -186,7 +218,8 @@
   % Any bibliohgraphy style that leaves space between entries is fine
   \bibliographystyle{acl_natbib}
   %\bibliographystyle{ecca}
-  \bibliography{references}
+  % \bibliography{references}
+  \bibliography{references, chapters/vibvoice/reference}
 \end{singlespacing}
 
 % Appendices from all chapters should go at the end

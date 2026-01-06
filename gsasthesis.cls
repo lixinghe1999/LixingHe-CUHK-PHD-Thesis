@@ -164,18 +164,19 @@
   \chapter*{\abstractname}
   %\section*{\abstractname}
 }%
+{\clearpage}
 
 \newenvironment{cabstract}%
 {
   \clearpage
+  % Standard spacing for the header
   \begin{spacing}{1.2}
   \end{spacing}
-  % Standard spacing for the header
-  %\addcontentsline{toc}{section}{Chinese Abstract}
+  \addcontentsline{toc}{section}{Chinese Abstract}
   \chapter*{\begin{CJK}{UTF8}{gbsn}摘要\end{CJK}}
+  \begin{CJK}{UTF8}{gbsn}
 }%
-
-{\clearpage}
+{\end{CJK}\clearpage}
 
 % GSAS: "Table of contents, lists of figures and tables can be single-spaced".
 % Let's redefine them to be single-spaced.

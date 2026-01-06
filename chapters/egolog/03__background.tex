@@ -1,0 +1,93 @@
+\section{Motivation Study}
+\label{sec:egolog_measurement}
+As discussed in Sec. \ref{sec:egolog_intro}, we mainly have three challenges towards a multi-modal HAR on mobile devices: 1) lack of scenario awareness, 2) being sensitive to ambient noise, and 3) fusion collapse. To explore these challenges and evaluate the potential for overcoming them, we conduct a series of experiments to analyze and demonstrate promising directions.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{chapters/egolog/figs/scenario_similarity.pdf}
+    \vspace{-1em}
+    \caption{Motivation for scenario understanding: 
+    The similarity of embeddings for intra- and inter-scenario activities.}
+    \label{fig:egolog_scenario_similarity}
+    \vspace{-1em}
+\end{figure}
+
+\subsection{Scenario}
+\label{subsec:scenario}
+Scenario information refers to long-time activities (e.g., playing with a pet or working at home) that reflect the user's real-world behavior. Capturing such scenarios in datasets is challenging, as it requires volunteers to perform activities naturally, mimicking real-life conditions. Generally, scenario is the ensemble of multiple related and continuous activities with a realistic distribution, reflecting meaningful interactions with the environment.
+
+To investigate the impact of scenario information on HAR, we utilize the Ego4D dataset \citep{grauman2022ego4d}, which captures real-world activities through smart glasses equipped with IMU and audio sensors. The dataset provides annotations at both the window level (every 10 seconds) and the video level, represented as plain text. We treat window-level annotations as activity labels and video-level annotations as scenario labels, reflecting the broader scenario of prolonged activities. To examine the properties of scenarios, we employ Sentence-BERT \citep{reimers2019sentence} to generate text embeddings for activities across 91 scenarios. We then compute activity similarity both within scenarios (intra-scenario) and between scenarios (inter-scenario). Intra-scenario similarity measures the similarity of activities within the same scenario, while inter-scenario similarity compares an activity from one scenario to a randomly selected activity from a different scenario.
+
+The results are shown in Fig.~\ref{fig:egolog_scenario_similarity}, revealing that the similarity within a scenario (intra-scenario similarity) is over 20\% higher than the similarity between different scenarios (inter-scenario similarity). This suggests that each scenario has a distinct distribution of activities. Specifically, a scenario effectively represents the user's daily log since it encompasses a longer time frame.
+Additionally, we notice that the inter-scenario similarity is generally above 0.3, indicating that many basic activities (such as sitting and walking) are common across all scenarios. Therefore, it is crucial to eliminate the influence of these basic activities in scenario recognition, as they are present in every scenario.
+
+
+In summary, the study on the in-the-wild dataset indicates unique activity distributions per scenario, which can be leveraged to recognize scenarios by identifying scenario-specific activities.
+
+
+\subsection{Sound Location }
+\label{subsec:embodied}
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\linewidth}
+        \centering
+       \includegraphics[width=\linewidth]{chapters/egolog/figs/baseline_result.pdf}
+        \caption{Sound localization \citep{schmidt1986multiple} under motion}
+        \label{fig:egolog_loc_move}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{chapters/egolog/figs/amplitude.pdf}
+        \caption{Sound volume may not related to distance.}
+        \label{fig:egolog_amplitude}
+    \end{minipage}    
+    \vspace{-1em}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{chapters/egolog/figs/spatial_motivation.pdf}
+    \vspace{-1em}
+    \caption{Motivation for spatial understanding: estimate the distance of a sound event by motion.}
+    \vspace{-1em}
+    \label{fig:egolog_motivation_localization}
+\end{figure}
+
+In practice, recorded audio often includes far-field sound sources that are unrelated to the user’s activities, underscoring the importance of sound localization for effective HAR. Wearables that are consistently worn on the user’s head provide a stable and reliable position for capturing detailed ambient sound information. Additionally, modern wearables feature multi-channel recording capabilities, enhancing their spatial sensing potential.
+In the following, we divide sound localization into direction and distance estimation, which we discuss as follows.
+
+The estimation of sound direction is one of the mature, basic, but still challenging applications of a microphone array. The accuracy highly depends on the number of microphones, which is unfortunately not sufficient for most commercial devices. Considering the most common setting of stereo recording, there are mainly two problems: the deviation of direction (especially for front-back confusion) and estimation of sound distance, as illustrated in Fig. \ref{fig:egolog_motivation_localization}.
+We envision that the above challenges may be solved by motion compensation. Specifically, we can aggregate the consecutive sound localization results along with the movement of the user (microphone) to refine the results or even get the distance.
+
+To illustrate them, we positioned a sound source in front of the user and utilized a binaural microphone along with the algorithm from \citep{schmidt1986multiple} to estimate the direction of arrival, as shown in Fig. \ref{fig:egolog_loc_move}.  The user is instructed to move the body slightly and naturally. We found that the estimation was not satisfactory, as it fluctuated from the true value of 90 degrees. To validate whether sound volume is enough for differentiating near and far, we conducted an experiment where the sound source was at different distances from the microphone. As shown in Fig. \ref{fig:egolog_amplitude}, there was no notable difference in volume between different cases, indicating that volume alone is an unreliable indicator for distance. The final bar in Fig. \ref{fig:egolog_amplitude} reveals that user movement slightly affects amplitude. Moreover, the presence of multiple sound sources can result in an even more complex mix of random sound volumes.
+
+\subsection{Multi-modal Fusion }
+\label{subsec:measure-fuse}
+
+\begin{figure}
+    \centering
+     \includegraphics[width=.75\linewidth]{chapters/egolog/figs/num_class.pdf}
+     \vspace{-1em}
+      \caption{The performance of an existing activity recognition with different class numbers and modalities.}
+    \label{fig:egolog_num_class}
+    \vspace{-1em}
+\end{figure}
+
+To investigate scalability bottlenecks in activity recognition using wearables, we trained unimodal supervised models with audio and IMU data on the Ego4D episodic memory subset (200 activity classes). We used EfficientAT~\citep{schmid2023efficient} for audio and LIMU-BERT~\citep{xu2021limu} for IMU as feature extraction backbones, comparing them to a multi-modal model via late fusion. Activities were clustered into varying class numbers using Sentence BERT~\citep{reimers2019sentence} embeddings and K-Means~\citep{macqueen1967some}, following MMG-Ego4D~\citep{gong2023mmg}. Results (Fig.~\ref{fig:egolog_num_class}) show a significant performance drop as class numbers increase, indicating challenges in recognizing diverse activities with audio or IMU alone. Multimodal fusion often underperforms unimodal models, suggesting ineffective extraction of complementary features at larger scales.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.75\linewidth]{chapters/egolog/figs/activity_diff.pdf}
+    \vspace{-1em}
+    \caption{Performance gain from multi-modal fusion.}
+    \label{fig:egolog_acc_gap}
+    \vspace{-1em}
+\end{figure}
+
+Previous work~\citep{mollyn2022samosa} demonstrates that multi-modal learning can outperform the unimodal model due to the complementary nature of each other.
+However, it may not apply to all cases, where another study~\citep{gong2023mmg} finds multi-modal learning with audio and IMU on Ego4D leads to even worse performance than the single-modal solution. To investigate the reasons behind the unexpected results, we compared the accuracy of multi-modal and uni-modal models for each class, as shown in Fig. \ref{fig:egolog_acc_gap}. We observe that the advantages of multi-modal fusion fluctuate for both modalities. This indicates that supervised multi-modal learning can not automatically select the right modality, failing to benefit from modality fusion.
+
+
+To investigate the effectiveness of LLMs in alleviating the problem, we employ the ImageBind-LLM \citep{han2023imagebind}, which converts both modalities into features and puts them in front of text embeddings. We instruct the model by the following prompt: ``<sensor> According to the audio and IMU reading on the earphone of the user, what is the activity of the user?'', while <sensor> refers to the place of sensor features. Since the LLM can have random output, we also add a prompt to force it to output one of the potential activities. To reduce complexity, we selected the top 30 activities in the subset of Ego4D (episodic memory). The BERT score of ImageBind-LLM is 0.04, 0.07, and 0.05 for precision, recall, and F1-score, respectively. As long as the performance is too low, we inspect the output and find that the LLM may not fully understand the task (multi-modal fusion). 
+Furthermore, we inspect whether fine-tuning the model can resolve the problem by training an adapter~\citep{zhang2023llamaadapter} for ImageBind-LLM. The adapted LLM achieves precision, recall, and F1-score for BERT Score of 0.47, 0.46, and 0.47, respectively. Although it is improved a lot, it is still much lower than usability and is far from practical. 

@@ -1,0 +1,45 @@
+\section{Related Work}
+
+\label{sec:egolog_related}
+\subsection{Motion Sensing for HAR}
+IMU sensors in wearables and earables facilitate position tracking and user motion recognition, with their performance significantly impacted by sensor placement.
+For example, LIMU-BERT \citep{xu2021limu} recognizes up to six activities with IMU recording of a smartphone.
+Similarly, IMU on the wrist (e.g., smartwatch) can be used to recognize the basic activities \citep{chan2024capture}. 
+Current motion sensing \citep{chan2024capture} only supports coarse-grained tasks, even with a large-scale dataset (>3000 hours), such as physical activity level (4 levels) or activities of daily life (10 activities).
+Compared to smartphones and smartwatches, earables are a more reliable choice due to their relatively fixed position \citep{lyu2024earda, han2023headmon, han2023headsense, han2025headmon+}, as we illustrated before. Nonetheless, they share the same limitations in fine-grained motion sensing.
+
+To enhance motion sensing, deploying multiple IMU sensors can enable precise full-body keypoint estimation with up to 17 IMUs. 
+The pose of humans can be used to recognize fine-grained human activity, as demonstrated by MotionBERT ~\citep{zhu2023motionbert}. However, such an approach is impractical for everyday use. Instead, researchers propose leveraging commercial devices only, such as smartwatches, smartphones, and earables. For instance, combining multiple devices can enable fine-grained exercise activity recognition~\citep{stromback2020mm}. Similarly, IMUPoser achieves full-body pose estimation with just three IMUs~\citep{mollyn2023imuposer}. While using multiple devices improves performance, having all of them will have problems of high cost, user discomfort, setup complexity, and limited availability.
+
+Another direction involves using pre-trained models to fuse IMU data with other modalities. Models like IMU2CLIP \citep{moon2023imu2clip} and ImageBind \citep{girdhar2023imagebind} link motion data to text or vision, enabling zero-shot recognition via retrieval. However, their performance on fine-grained tasks remains limited. Recently, Large Language Models (LLMs) have shown promise in reasoning over motion data \citep{ji2024hargpt, leng2024imugpt, xu2024autolife, ouyang2024llmsense}, often by converting sensor readings into text tokens for the LLM to process \citep{xu2024penetrative}.
+
+
+% To further improve motion sensing, integrating advanced pretrained models that incorporate multiple modalities, such as text, offers a promising approach. Models like IMU2CLIP~\citepp{moon2023imu2clip} and ImageBind~\citep{girdhar2023imagebind} connect motion data to other modalities, enabling zero-shot activity recognition through retrieval. 
+% However, their performance remains limited. For instance, IMU2CLIP \citepp{moon2023imu2clip} is restricted to four-class activity recognition, while ImageBind \citepp{girdhar2023imagebind} achieves only 25\% accuracy on fine-grained activity recognition.
+
+% Recently, LLMs have demonstrated exceptional reasoning abilities when working on not only vision and text \citep{yang2024viassist, liu2023improved}, but also other modalities like motion \citep{ji2024hargpt, leng2024imugpt, xu2024autolife, ouyang2024llmsense}. For example, Penetrative AI \citep{xu2024penetrative} has shown that LLMs can also interpret sensor data such as accelerometers. 
+% All of the above works convert the raw data into strings that can be easily accepted by LLM.
+
+In summary, prior work on motion sensing either employs multiple IMU sensors or remains confined to coarse-grained activity recognition. Since IMU sensing inherently
+lacks contextual or environmental information, which limits their ability to perform fine-grained HAR \citep{tong2020accelerometers}. Further advancements should focus on integrating additional modalities or external knowledge.
+
+\subsection{Acoustic Sensing for HAR}
+In addition to IMU sensors, acoustic sensors (microphones and speakers) are also commonly integrated into wearables and mobile devices. The use of a speaker allows acoustic sensing to be categorized into two approaches: active sensing (utilizing both the speaker and the microphone) and passive sensing (using only the microphone).
+
+As the main research area of audio, there are multiple applications of passive audio sensing, including speech recognition and audio classification \citep{schmid2023efficient}. However, audio is related but does not directly reflect human activity. Instead, it relies on the sound caused by activity, which can be easily misled by a loudspeaker. As a result, audio-based HAR is often treated as a specialized form of audio classification \citep{cristina2024audio}.
+In contrast, multi-channel passive sensing enhances spatial awareness by estimating the direction of arrival (DoA) of sounds using microphone arrays \citep{schmidt1986multiple, adavanne2018sound} or binaural earables \citep{yang2022deepear, krause2021joint}. While DoA provides useful context, it cannot confirm whether the source is human or differentiate the loudspeaker. To detect human presence, some approaches integrate feedforward microphones to capture vocal activity via head-related sounds \citep{zhang2024earsavas}, or use an IMU to capture the bone-conduction sound \citep{he2023towards}. However, they can only cover the vocal activity.
+
+Different from passive sensing, active sensing analyzes transmitted acoustic waves and their reflections, enabling non-contact sensing.
+For the context of human activity, we are more interested in 
+sensing not only the facial movements \citep{dong2024rehearsse} with outward-facing speaker, such as upper body pose detection \citep{mahmud2023posesonic}, and gesture recognition \citep{yang2024maf}. However, the speakers are usually oriented inward or designed to be effective only in the near field to maintain user privacy, which hugely limits the performance in coarse-grained recognition. 
+
+In summary, acoustic sensors in wearables enable rich information capture through either passive or active sensing. However, audio-based HAR is still limited, as passive sensing struggles to confirm human presence, and active sensing is constrained by practical considerations, necessitating multi-modal integration for improved performance.
+
+\subsection{Multi-modal Sensing for HAR}
+Multi-modal learning of audio and IMU data addresses limitations in motion sensing or acoustic sensing by leveraging the complementary strengths of both modalities. For instance, VibVoice \citep{he2023towards} uses bone-conduction vibration and audio in earables to distinguish a user’s voice from others. Similarly, \citep{min2018exploring} employs IMU for motion detection and a microphone for conversation detection, processed independently. Other wearables, such as wrist-mounted or head-mounted devices, also utilize multi-modal approaches; SAMoSA \citep{mollyn2022samosa, bhattacharya2022leveraging} integrates audio and IMU on smartwatches to recognize up to 26 activities. However, multi-modal learning is not universally superior, as its effectiveness depends on factors like data quality, modality correlation, and model design. 
+For example, the fusion of audio and IMU on a diverse dataset like Ego4D \citep{grauman2022ego4d} can be challenging.
+As demonstrated by MMG-Ego4D \citep{gong2023mmg}, where a multi-modal model for smart glasses underperformed compared to single-modal models in recognizing nearly 200 actions, highlighting that multi-modal approaches do not always guarantee improved performance \citep{huang2022modality}.
+
+Beyond integrating audio and IMU sensors, incorporating additional knowledge sources can enhance motion sensing. For example, SAMoSA \citep{mollyn2022samosa} uses automatic context detection to trigger context-specific classifiers, though limited to predefined classes. Furthermore, the advanced LLMs facilitate multi-modal processing, either at the prompt level, incorporating IMU, GPS, Wi-Fi, or Bluetooth data \citep{yang2025contextagent, xu2024autolife,yang2024drhouse}, or at the token level, combining audio and IMU \citep{han2023onellm, girdhar2023imagebind}. While promising, those works lack explicit multi-modal fusion, especially for the heterogeneous multi-modal data from mobile devices.
+
+In summary, the fusion of audio and IMU can be challenging since the correlation between them can be weak. While incorporating external knowledge or using powerful models like LLMs for fusion can enhance recognition, current methods still lack effective techniques for deeply integrating the heterogeneous data.

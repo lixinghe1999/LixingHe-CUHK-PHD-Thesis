@@ -1,0 +1,16 @@
+\section{Discussion}
+\label{sec:discuss}
+
+CoHear currently uses Wi-Fi for its high throughput and multi-user support, but it is energy-intensive and unsuitable for low-end devices. In contrast, Bluetooth offers low-power, real-time communication but has poor multi-user scalability. Although Bluetooth mesh enables multi-user connections, it provides insufficient bandwidth.
+To implement CoHear on a portable device without Wi-Fi, we propose two approaches: 1) For future work, developing a custom multi-party audio network over Bluetooth could be explored, as the total theoretical bandwidth is sufficient. 2) Using existing BLE Mesh (which has low bandwidth and high latency), CoHear can still function by frequently updating only the speaker embedding, which requires very low data rates.
+On the other hand, CoHear uses simulated data due to the prohibitive cost and complexity of large-scale real-world experiments with motion capture. Towards an affordable, large-scale data collection, Ultra-Wideband (UWB) presents a conventional, accurate, and budget-friendly alternative worth exploring. Although UWB lacks rich information about the body movement, we are only interested in the position and orientation of users from the context of CoHear, which is accessible with UWB.
+
+\paragraph{Multi-modal fusion}
+Currently, our geometric calibration only uses IMU data for human tracking in a post-processing manner: we utilize the tracking results from IMU rather than processing its raw data directly. A more advanced approach would be to integrate IMU data into the sound source localization process itself, enabling multi-modal fusion for sound source localization. This integration could compensate for motion-induced errors and potentially extend the system's localization capabilities.
+
+\paragraph{Hardware}
+A limitation of the current CoHear implementation is its reliance on smartphone computational resources, which introduces undesirable latency and compatibility constraints. A promising future direction is to miniaturize the entire pipeline—including conversation construction and speech enhancement—for direct deployment on a headphone, with the help of the speech AI accelerator \cite{itani2025wireless}. Otherwise, smart glasses represent another viable platform, offering comparatively greater computational power and integrated peripherals like cameras and screens. 
+
+\paragraph{Remote conversation}
+While CoHear is designed for in-person conversations, its core principles are equally applicable to virtual meetings. The system relies on three key features: head direction, location, and voice. In a remote setting, we can also capture the attention of the participants as well as their voices via webcam and microphone. Although physical location is not directly available, it can be inferred through the participant's position in a virtual space. Consequently, all functionalities of CoHear can be effectively replicated in a remote environment, enabling wider applications.
+

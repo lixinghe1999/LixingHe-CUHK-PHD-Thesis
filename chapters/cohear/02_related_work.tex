@@ -1,0 +1,58 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Conversation Modeling}
+Conversation involves the exchange of thoughts, feelings, and ideas between two or more people. A natural conversation is not simply a combination of multiple speeches; it also includes both verbal and non-verbal elements. Modeling conversations has significant technical and social implications.
+
+\paragraph{Non-verbal feature}
+Non-verbal features, also known as body language \cite{d2010multimodal}, play a crucial role in conversations. Previous research has explored detecting social interactions using acceleration data from neck-worn sensors \cite{gedik2018detecting}. However, acceleration-based methods are inherently limited to capturing the wearer's own movements and cannot perceive contextual factors or the behaviors of others. Their effectiveness relies on coordinated actions between individuals, which are often inconsistent.
+
+In contrast, vision and audio offer a more direct approach to modeling social interaction. For instance, the Ego4D benchmark defines interaction through the objectives "look at me" and "talk to me" \cite{grauman2022ego4d}. Similarly, multi-modal methods like visual-guided beamforming (e.g., in EasyCom \cite{donley2021easycom}) outperform audio-only approaches by leveraging both data types. However, due to the computational overhead of vision, audio-only solutions remain advantageous. These methods typically work by estimating the speaker's location \cite{wang2022nerc, yang2022deepear}, but this alone is insufficient, as it fails to capture the speaker's orientation—a key component of "talking to me." Some research has aimed to jointly estimate location and orientation \cite{ahuja2020direction}, but these methods are designed for static microphone arrays and lack the adaptability needed for dynamic, real-world environments.
+
+\paragraph{Verbal feature}
+In addition to non-verbal cues, the content of speech is also a vital aspect of conversation, as highlighted in \cite{sacks1974simplest}. A closely related task is speaker diarization \cite{bredin2023pyannote}, which identifies "who spoke when" and can further transcribe the corresponding text. By analyzing the conversation content \cite{wei2022conversational}, we can generate meeting summaries \cite{ramprasad2024analyzing} or improve readability \cite{wang2024diarizationlm}. Beyond semantic analysis, the dynamics of turn-taking in conversations are noteworthy, as they exhibit clear temporal patterns and are essential for understanding social interactions \cite{levinson2015timing}. 
+Previous studies have attempted to utilize the turn-taking to either proactively mediate the conversation \cite{lee2018flower} or detect the turn-taking events by examining natural overlaps and backchannels \cite{chen2024target, chang2022turn}. However, it is important to note that turn-taking detection is only effective once it has occurred, which means that waiting for enough data can pose a significant delay. 
+
+In summary, non-verbal features are more stable for modeling conversation and introduce less delay than verbal features, making them more suitable for deployment in our system. However, current methods fail to extract these features without visual data, which is unavailable for standard headphones.
+
+
+\subsection{Acoustic Sensing Systems}
+Recent advancements in mobile computing leverage acoustic modalities to enable human-centric applications, laying the groundwork for CoHear. These works can be categorized into two primary areas: single device and multiple devices, by the number of devices utilized in the system.
+
+\paragraph{Single device}
+The acoustic sensing capabilities of a single device can be further categorized based on the frequency band utilized. Specifically, when only audible sound (below 20 kHz) is employed, this is referred to as audible acoustic sensing. Conversely, when the ultrasonic frequency band is used, it is classified as ultrasonic acoustic sensing.
+
+Audible acoustic sensing extracts semantic content, such as speech transcription \cite{gao2023funasr} or sound classification \cite{gemmeke2017audio}, or derives spatial information through multi-channel audio recordings \cite{wang2019doa}. However, its applications are constrained to audible sources, making it less versatile in complex environments. In contrast, ultrasonic sensing uses controlled, inaudible sound waves to convey information, supporting a diverse range of tasks: underwater localization and communication \cite{chen2022underwater, chen2023underwater}, backscatter \cite{jang2019underwater}, air-to-water communication \cite{tonolini2018networking}, SOS signal transmission \cite{yang2023aquahelper} and dual-channel communication \cite{qian2021aircode}. Except for transmitting information, it can be employed to sense different features, including gesture recognition \cite{wang2020push}, speech enhancement with anti-counterfeiting watermark~\cite{sun2021ultrase, duan2024earse, duan2024f2key}, vital sign monitoring \cite{wang2022loear}, and enhancement with metasurface \cite{zhang2023acoustic}.
+
+\paragraph{Multiple devices}
+Incorporating multiple acoustic devices, the collaboration of them naturally transforms the problem into a network problem, which is called Wireless Acoustic Sensor Network (WASN). Using ambient sound, WASN can determine sensor locations through geometric calibration \cite{gburrek2021geometry}.
+
+This process involves iteratively solving a cost function based on the observations of random sound sources. Specifically, geometric calibration can be categorized based on the type of output from the sensor node, including DoA \cite{wang2019doa}, distance \cite{gburrek2021iterative}, or both \cite{gburrek2021geometry}). Instead, there are various algorithms, like iterative optimization \cite{wang2019doa, fischler1981random}, and dataset matching \cite{gburrek2021geometry, hennecke2009hierarchical}).
+In addition to geometric calibration, other promising areas to explore include sample rate offset (SRO) \cite{gburrek2022synchronization}, acoustic beamforming \cite{gburrek2023integration}, and swarm-based acoustic network \cite{itani2023creating}.
+
+In summary, multi-device collaboration enables fine-grained modeling and richer information, which is important for acoustic sensing systems. However, there is a gap in applying these techniques to conversation modeling and enhancement.
+
+\subsection{Audio Enhancement}
+Prior research on audio augmentation in wearable devices provides a foundation for enhancing conversations in noisy environments, as targeted by CoHear. Combined with active noise cancellation, we can improve the user's listening experience seamlessly if the latency is as low as 20-30 ms \cite{stone1999tolerable, gupta2020acoustic}. 
+We categorize relevant work into three areas: audio augmented reality, speech enhancement, and non-speech enhancement.
+
+\paragraph{Audio augmented reality}
+Location-based audio enhancement delivers context-specific audio based on a user’s position or orientation. For instance, museum audio guides, such as those described in \cite{harma2004augmented}, play narrations triggered by a user’s proximity to exhibits. Ear-AR \cite{yang2020ear} enhances immersion by aligning stereo audio with the user’s head-related transfer function, using head-tracking to create spatial soundscapes. 
+While effective for static, single-user experiences, these approaches assume predefined audio triggers and do not address dynamic, multi-user interactions like conversations, where relative user positions and intentions (e.g., head orientation toward a speaker) are critical.
+
+\paragraph{Speech enhancement}
+Speech enhancement extracts speech from a noisy mixture, either by assuming a model for the noise distribution \cite{wiener1949extrapolation} or by leveraging conditions correlated with the speech signal itself.
+These conditions can be derived from wearable devices, such as bone-conducted vibrations \cite{he2023towards}, the in-ear occlusion effect \cite{han2024earspeech}, and facial acoustics \cite{zhang2025wearse}. The data from these sensors is closely correlated with the user's voice, making these approaches user-centric and often designed with a strong emphasis on computational efficiency.
+Alternatively, voiceprints (i.e., speaker embeddings) can also be used for speech enhancement \cite{zmolikova2023neural, veluri2024look}. These can be obtained through an audio-only enrollment process.
+Systems like SoundBubble \cite{chen2024hearable} can enhance conversations around a user. However, this approach constrains participants to a fixed, circular area, which limits its applicability in dynamic scenarios.
+
+\paragraph{Non-speech enhancement}
+Other approaches filter non-speech sounds by type \cite{veluri2023semantic}, embedding of the sound \cite{liu22w_interspeech}, or use prior ambient audio for noise cancellation \cite{shen2018mute}. 
+However, these methods often focus on single-user scenarios or specific sound categories, which means they do not effectively capture the complex dynamics of group conversations, such as turn-taking in verbal communication and head orientation in non-verbal communication. 
+
+In summary, a rich body of literature covers various ways to process audio and enhance listening. However, there is limited work on conversation-driven audio enhancement, especially for online deployment as opposed to offline processing.
+
+
+
+
+

@@ -1,1 +1,49 @@
+\section{Background and Motivation}
+Understanding human behavior requires more than isolated observation of individuals—it demands comprehension of the dynamic interplay between users and their surroundings. Traditional sensing approaches often treat users as isolated entities, analyzing their speech, activities, or physiological signals independently from environmental context. However, human behavior is fundamentally shaped by environmental factors: our conversations are influenced by ambient noise, our activities depend on surrounding scenarios, and our social interactions are mediated by shared acoustic and spatial contexts. This inherent \textit{user-environment coupling} represents a critical yet underexplored dimension in human-centric sensing research.
+
+Earphones, particularly true wireless stereo (TWS) earphones exemplified by the Apple AirPods series, present a unique opportunity to address this coupling. With an estimated global shipment of 455 million units in 2024, reflecting an 11.2\% year-on-year growth~\cite{patentlyapple2025audio}, earphones have emerged as the next major wearable platform following smartphones. Unlike other wearables, earphones occupy a distinctive position at the intersection of user-generated signals and environmental stimuli, making them naturally suited for capturing user-environment coupling. Their omnidirectional microphones simultaneously capture both user-generated sounds (speech, vocal activities) and environmental sounds (ambient noise, other speakers' voices), providing a holistic acoustic view of both entities. Meanwhile, their proximity to sensory organs enables privileged access to user-specific signals: microphones receive voice with superior signal-to-noise ratios, while motion sensors capture bone-conducted vibrations that propagate exclusively through the wearer's body. This unique combination allows earphones to effectively distinguish and model the dynamic interplay between user and environment.
+
+Despite this advantage, prior research has predominantly concentrated on the independent utilization of individual sensors (e.g., microphones or inertial measurement units) in earphones, often overlooking their potential for holistic user-environment sensing. Recent studies have proposed novel applications including hearing enhancement \cite{veluri2023semantic}, acoustic augmented reality \cite{yang2020ear}, and activity recognition \cite{gong2023mmg}. While these advancements enhance earphone functionality, they lack a cohesive framework that explicitly models the user-environment coupling. This thesis addresses this gap by establishing user-environment coupling as a unifying principle, demonstrating how earphones can serve as a comprehensive platform for understanding users within their environmental context rather than in isolation.
+
 \section{Contributions}
+In this thesis, we seek to extend the sensing capabilities of earphones through a unified principle: \textit{user-environment coupling}. This principle recognizes that comprehensive understanding of human behavior cannot be achieved by studying users in isolation, but rather requires modeling the dynamic interplay between individuals and their surroundings. Specifically, we identify three fundamental dimensions of this coupling: (1) the acoustic boundary between user-generated sounds and environmental noise, (2) the contextual relationship between user activities and ambient scenarios, and (3) the social fabric connecting multiple users through shared acoustic and spatial contexts. 
+
+Earphones provide an ideal platform for sensing across these dimensions through their unique capability for \textbf{user-environment differentiation with multi-modal sensing}. By simultaneously capturing audio through omnidirectional microphones and motion through inertial sensors, earphones can distinguish user-specific signals from environmental interference. Audio modality captures both user-generated sounds and ambient noise, while motion sensors access bone-conducted vibrations exclusive to the wearer. This multi-modal approach enables robust differentiation even in challenging scenarios, forming the foundation for all three systems presented in this thesis.
+
+To systematically explore user-environment coupling, we have designed and implemented three systems: VibVoice, EgoLog, and CoHear—each targeting a distinct dimension of this coupling while sharing the same underlying principle of understanding users through their environmental context.
+
+
+
+The main contributions of this thesis are as follows:
+\begin{enumerate}
+    \item \textbf{VibVoice: Bone Conduction-based Speech Enhancement.} We propose and implement a novel speech enhancement system that leverages bone vibrations conducted through the skull, captured by accelerometers widely available in head-mounted wearables. We develop a lightweight multi-modal architecture featuring a two-branch encoder-decoder deep neural network that fuses high-level features from both audio and vibration modalities to reconstruct clean speech. 
+    
+    To address the challenge of insufficient paired training data, we conduct extensive measurements of bone conduction effects to extract physical impulse responses for cross-modal data augmentation. 
+    
+    Our evaluation demonstrates that VibVoice achieves up to 21\% improvement in PESQ and 26\% improvement in SNR over state-of-the-art baselines while requiring 72 times less paired data. A user study with 35 participants shows that 87\% prefer VibVoice over the baseline. Additionally, VibVoice achieves 4 to 31 times faster execution on mobile devices compared to baselines.
+    
+    \item \textbf{EgoLog: Fine-grained Activity Logging with Commercial Earphones.} We propose and implement a sensing system that enables fine-grained activity logging using existing sensors in commercial earphones. The system records both user activities and contextual scenarios, facilitating detailed behavior understanding. EgoLog addresses three key challenges: limited recognition capability due to sparse sensor configurations, ineffective fusion for extracting ambient information, and interference from environmental noise.
+    
+    Our system architecture comprises a context-aware scenario recognition module and a spatial-aware activity detection module, integrated with other attributes through expert knowledge. Implemented on commercial earphones equipped with binaural microphones and an IMU, EgoLog achieves zero-shot fine-grained activity logging across up to 41 categories, outperforming strong baselines such as ImageBind-LLM by 38\% in F1-score.
+    
+    \item \textbf{CoHear: Collaborative Conversation-level Speech Enhancement.} We present the first collaborative speech enhancement system that operates at the conversation level across multiple earphones. To enable real-time conversation enhancement, the system performs holistic modeling of all conversation participants and effectively extracts target speech from acoustic mixtures.
+    
+    CoHear makes two key contributions: (1) a conversation-driven network protocol that enables mobile, infrastructure-free coordination among earphone devices, and (2) a robust target conversation extraction model that leverages relay audio in a bandwidth-efficient manner. 
+    
+    Evaluation through real-world experiments and simulations demonstrates that our conversation network achieves over 90\% accuracy in group formation, improves speech quality by up to 8.8 dB over state-of-the-art baselines, and maintains real-time performance on mobile devices. A user study with 20 participants confirms CoHear's superior performance and good usability compared to baselines.
+\end{enumerate}
+
+Together, these three systems instantiate the user-environment coupling principle across acoustic, contextual, and social dimensions. In the following chapters, we elaborate on the key ideas and implementation details of these systems, demonstrating how this unified principle enables earphones to serve as a comprehensive platform for human-centric sensing.
+
+\section{Thesis Outline}
+This thesis is structured as follows. The research is organized into two primary domains: audio and activity. Since speech, a form of audio, can be considered a vocal activity, the term "activity" throughout this thesis refers specifically to non-vocal activities.
+
+\textbf{Chapter \ref{ch:background}} provides a comprehensive review of related work and foundational sensing models. The audio-related work examines speech enhancement, given its central role in audio applications and human communication. We then extend this discussion from individual speech to group conversations. Finally, we review work that utilizes audio as a medium for wireless transmission and sensing.
+
+\textbf{Chapter \ref{ch:vibvoice}} presents our first application, VibVoice, which utilizes motion sensors in earphones to capture bone-conducted vibrations for speech enhancement. By leveraging this unique sensing modality, the system effectively isolates user speech from environmental noise.
+
+\textbf{Chapter \ref{ch:egolog}} introduces our second application, EgoLog, which leverages complementary multi-modal sensing features in earphones to achieve fine-grained activity recognition that is robust to external interference. The system generates detailed activity logs by understanding both user actions and contextual scenarios.
+
+\textbf{Chapter \ref{ch:cohear}} presents our third application, CoHear, the first collaborative speech enhancement system for conversation-level processing. The system constructs a conversation network to automatically identify and isolate individual conversations among multiple users wearing earphones.
+
+These three applications are derived from our accepted or submitted publications and collectively demonstrate the potential of earphones as a versatile platform for human-centric sensing.

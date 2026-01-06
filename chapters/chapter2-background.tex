@@ -1,0 +1,80 @@
+This section synthesizes prior research relevant to speech enhancement, activity recognition, conversation modeling, and acoustic sensing, streamlining the discussion into four key subsections: speech enhancement, activity recognition, conversation modeling, and acoustic sensing systems. Each subsection addresses critical methodologies, their applications, and limitations, providing context for our contributions.
+
+\section{Audio}
+
+\subsection{Speech Enhancement on Earphones}
+Speech enhancement is an essential function in voice communication that has received extensive attention. We categorize existing speech enhancement methods based on the methods, i.e., \textit{Model-driven}, \textit{Neural network}, \textit{Target speech enhancement}, and  \textit{Multi-modal}.
+
+\subsubsection{Model-driven}
+Traditional speech enhancement either relies on assumptions of stationarity of signals, independence of speech, noise in the time-frequency domain \cite{ephraim1995signal}, or multiple omnidirectional microphones (e.g., a microphone array) to improve audio quality. The microphone array leverages the difference of arrival times (known as beamforming) toward each microphone to determine the direction of the speaker for speech enhancement \cite{yousefian2014hybrid,ji2017coherence}, and speech separation \cite{wood2017blind,kitamura2016determined}. However, those approaches cannot adapt to dealing with dynamic noises without prior knowledge.
+
+\subsubsection{Neural network}
+Recent studies adopt DNN \cite{subakan2021attention, zhang2021microphone, chatterjee2022clearbuds} for speech enhancement. The deep structure of neural networks can capture the inherited features of the target voice and potential noises based on a large training dataset.
+DNN-based methods work on both single-channel audio \cite{subakan2021attention} and multi-channel audio with arbitrary microphones layouts \cite{zhang2021microphone}. ClearBuds \cite{chatterjee2022clearbuds} uses a DNN to process the stereo audio recorded by customized earbuds, which causes excessive communication overhead. ClearBuds filters noises based on the angles of sources, which does not work when a competing speaker stands at the same angle as the speaker.
+Although audio-only deep learning speech enhancement achieves good performance, it relies on the training data domain and fails to enhance the speech quality with slim-volume audio.
+
+\subsubsection{Target speech enhancement}
+Instead of location-based enhancement, sound-based approach enables users to hear manipulated sounds like superhuman hearing. Combined with active noise cancellation, we can control the user's listening seamlessly if the latency is as low as 20-30 ms \cite{stone1999tolerable, gupta2020acoustic}. 
+
+Fixed-target methods, such as noise suppression \cite{wiener1949extrapolation}, assume stationary noise spectra, while dynamic target sound extraction adapts to conditions like speaker embeddings \cite{zmolikova2023neural, veluri2024look}, lip vibrations \cite{liu2021wavoice}, or spatial bubbles \cite{chen2024hearable}. Other approaches filter non-speech sounds by type \cite{veluri2023semantic}, embedding of the sound \cite{liu22w_interspeech}, or use prior ambient audio for noise cancellation \cite{shen2018mute}. 
+However, these methods often focus on single-user scenarios or specific sound categories, which means they do not effectively capture the complex dynamics of group conversations, such as turn-taking in verbal communication and head orientation in non-verbal communication.
+
+
+\subsubsection{Multi-modal}
+We categorize relevant work into three areas: location-based audio augmentation, sound-based speech enhancement, and multi-user audio systems.
+
+Multi-modal approaches leverage visual, wireless, or inertial measurement unit (IMU) data. Audio-visual methods use camera footage for speech enhancement \cite{michelsanti2021overview, gao2021visualvoice}, but cameras are not always available. Audio-wireless techniques employ inaudible signals \cite{sun2021ultrase, zhang2021sensing} or mmWave radar \cite{liu2021wavoice, ozturk2021radiomic}, requiring specialized hardware. Audio-IMU methods combine bone conduction or accelerometers with microphones \cite{wang2022fusing, tagliasacchi2020seanet}, but face bandwidth and generalizability issues due to anatomical variations \cite{Inertial63:online}.
+
+% Non-acoustic sensing
+Non-acoustic sensors like IMUs or piezoelectric sensors capture contact sounds \cite{maruri2018v, khanna2021jawsense}, while remote sensing with geophones, LiDAR, or mmWave radar detects specific speech contents \cite{han2017pitchln, sami2020spying, li2020vocalprint}. These methods are limited to predefined categories and cannot reconstruct full-spectrum audio \cite{anand2018speechless}.
+
+Location-based audio enhancement delivers context-specific audio based on a user’s position or orientation. For instance, museum audio guides, such as those described in \cite{harma2004augmented}, play narrations triggered by a user’s proximity to exhibits. Ear-AR \cite{yang2020ear} enhances immersion by aligning stereo audio with the user’s head-related transfer function, using head-tracking to create spatial soundscapes. While effective for static, single-user experiences, these approaches assume predefined audio triggers and do not address dynamic, multi-user interactions like conversations, where relative user positions and intentions (e.g., head orientation toward a speaker) are critical.
+
+
+
+\subsection{Conversation Modeling}
+Conversation involves the exchange of thoughts, feelings, and ideas between two or more people. A natural conversation is not simply a combination of multiple speeches; it also includes both verbal and non-verbal elements. Modeling conversations has significant technical and social implications.
+
+\paragraph{Non-verbal feature}
+Non-verbal features, also known as body language \cite{d2010multimodal}, play a crucial role in conversations. For example, the orientation of a speaker's head can indicate their level of interest. According to \cite{grauman2022ego4d}, the two main objectives for modeling social interaction are "look at me" and "talk to me." While using smart glasses equipped with both visual and audio inputs makes this task easier \cite{donley2021easycom}, it remains a challenge when relying solely on audio. Most sound source localization techniques primarily focus on the direction of arrival \cite{wang2022nerc, yang2022deepear}, which does not accurately reflect the speaker's orientation since it ignores sound directivity. 
+\cite{gedik2018detecting} presents a method that leverages dynamics of social interactions inferred from acceleration data, employing transfer learning to detect social activity.
+Previous research \cite{ahuja2020direction} has suggested estimating both the location and orientation of the speaker, but these methods typically operate under strict assumptions, such as using a static microphone array.
+
+\paragraph{Verbal feature}
+In addition to non-verbal cues, the content of speech is also a vital aspect of conversation, as highlighted in \cite{sacks1974simplest}. A closely related task is speaker diarization \cite{bredin2023pyannote}, which identifies "who spoke when" and can further transcribe the corresponding text. By analyzing the conversation content \cite{wei2022conversational}, we can generate meeting summaries \cite{ramprasad2024analyzing} or improve readability \cite{wang2024diarizationlm}. Beyond semantic analysis, the dynamics of turn-taking in conversations are noteworthy, as they exhibit clear temporal patterns and are essential for understanding social interactions \cite{levinson2015timing}. 
+
+Previous studies have attempted to model conversation, such as Flower-Pop \cite{lee2018flower}, which incorporates smartphones to monitor and proactively mediate the conversation. Or, \cite{chen2024target, chang2022turn} that predict turn-taking events by examining natural overlaps and backchannels. However, it is important to note that turn-taking detection is only effective once it has occurred, which means that waiting for enough data can pose a significant challenge. On the other hand, SocialMind \cite{yang2025socialmind} uses a large language model to help people who are anxious in conversation by providing suggestions, capturing both the non-verbal and verbal features. 
+
+
+
+\subsection{Acoustic Sensing Systems}
+Recent advancements in mobile computing leverage acoustic modalities to enable human-centric applications, laying the groundwork. These advancements can be categorized into two primary areas: audible sound processing and ultrasonic sensing.
+
+\paragraph{Audible and ultrasonic}
+Audible sound processing extracts semantic content, such as speech transcription \cite{gao2023funasr} or sound classification \cite{gemmeke2017audio}, or derives spatial information through multi-channel audio recordings \cite{wang2019doa}. However, its applications are constrained to audible sources, making it less versatile in complex environments. In contrast, ultrasonic sensing uses controlled, inaudible sound waves to convey information, supporting a diverse range of tasks: underwater localization and communication \cite{chen2022underwater, chen2023underwater}, backscatter \cite{jang2019underwater}, air-to-water communication \cite{tonolini2018networking}, SOS signal transmission \cite{yang2023aquahelper} and dual-channel communication \cite{qian2021aircode}. Except for transmitting information, it can be employed to sense different features, including gesture recognition \cite{wang2020push}, vital sign monitoring \cite{wang2022loear}, and enhancement with metasurface \cite{zhang2023acoustic}.
+
+\paragraph{Wireless acoustic sensor network (WASN)}
+As most existing acoustic sensing systems rely on single-device processing, migrating from single-device to multi-device, WASN provides a new way of networking and sensing.
+Using ambient sound, we can determine sensor locations through geometric calibration \cite{gburrek2021geometry}. This process involves iteratively solving a cost function based on the observations of random sound sources. Specifically, geometric calibration can be categorized based on the type of output from the sensor node, including DoA \cite{wang2019doa}, distance \cite{gburrek2021iterative}, or both \cite{gburrek2021geometry}). Instead, there are various algorithms, like iterative optimization \cite{wang2019doa, fischler1981random}, and dataset matching \cite{gburrek2021geometry, hennecke2009hierarchical}).
+In addition to geometric calibration, other promising areas to explore include sample rate offset (SRO) \cite{gburrek2022synchronization}, acoustic beamforming \cite{gburrek2023integration}, and swarm-based acoustic network \cite{itani2023creating}.
+
+
+
+\section{Activity Recognition on Earphones}
+
+\subsection{IMU sensing}
+Researchers have explored how wearables devices can support smart sensing in a multi-modal manner, especially for activity monitoring \cite{min2018exploring,stromback2020mm, roddiger2022sensing, lyu2024earda, mollyn2022samosa, bhattacharya2022leveraging,duan2024f2key}. Among the wearables, earables are a more reliable choice due to their relatively fixed position of earables. As far as we know, most activity sensing on wearables lies in motion sensing, such as determining whether the user is walking or not. It can be extended to recognize several user-defined categories or further perform zero-shot recognition like IMU2CLIP and ImageBind \cite{tong2021zero, moon2023imu2clip, girdhar2023imagebind}. Those approaches take advantage of text embedding to perform zero-shot recognition. However, the IMU performance tends to be low since it inherently lacks ambient information.
+
+\subsection{Multi-modal sensing}
+In contrast, using both audio and IMU can help address the aforementioned issues, as multi-modal learning leverages the strengths of both types of data. There are some examples of multi-modal activity sensing on earables, such as EARSAVAS \cite{zhang2024earsavas}, which focuses on vocal activities, and another study \cite{min2018exploring} that uses a microphone to detect conversations. Other wearable devices, either head-mounted or wrist-mounted, can also perform similar functions. For instance, SAMoSA \cite{mollyn2022samosa, bhattacharya2022leveraging} employs audio and IMU on the smartwatch to recognize up to 26 activities, while the MMG-Ego4D \cite{gong2023mmg} can identify nearly 200 actions using data from smart glasses.
+The typical method for multi-modal fusion is feature concatenation \cite{he2023towards, duan2024earse}, but this approach sometimes fails to significantly improve performance compared to uni-modal models \cite{gong2023mmg, huang2022modality}. This issue is especially evident in complex tasks like those in the Ego4D dataset \cite{grauman2022ego4d}. 
+
+\subsubsection{Auxiliary information for activity}
+In addition to direct activity recognition, auxiliary information is leveraged to improve performance, including motion attributes \cite{tong2021zero}, skeleton data \cite{zhu2023motionbert}, and contextual cues \cite{mollyn2022samosa}. For instance, SAMoSA \cite{mollyn2022samosa} employs automatic context detection to trigger context-specific classifiers, but its effectiveness is constrained to a limited set of predefined classes. Similarly, signals from GPS, Wi-Fi, or Bluetooth \cite{xu2024penetrative} can provide insights into user activities, albeit with weaker correlations. For example, the commercial app Life Cycle \footnote{https://apps.apple.com/us/app/life-cycle-track-your-time/id1064955217} tracks coarse-grained activities using GPS and temporal data but lacks the fine-grained details necessary for precise health recommendations. Furthermore, EARSAVAS \cite{zhang2024earsavas} uses noise-free inward-facing microphones as well as IMU to distinguish users in vocal activity recognition, yet it is limited to activities involving significant head vibrations, such as speech.
+
+\subsection{LLM for Activity Recognition}
+Large Language Models (LLMs) and Multi-modal Large Language Models (MLLMs) excel in reasoning with text and images, offering generative, zero-shot capabilities superior to traditional discriminative methods \cite{yang2024viassist, liu2023improved}. However, their application to activity recognition, especially with non-traditional modalities, such as sensor data, is limited by training data constraints. Penetrative AI \cite{xu2024penetrative} demonstrates LLMs' ability to interpret sensor data, like electrocardiograms and accelerometers, by converting it into strings with expert knowledge. LLMs have also been applied to activity recognition \cite{ji2024hargpt, leng2024imugpt}, social interactions \cite{yang2024socialmind}, multi-turn diagnosis \cite{yang2024drhouse}, and complex event detection in spatiotemporal data \cite{ouyang2024llmsense}. However, these approaches often rely on simplified string representations, limiting data comprehension across diverse modalities.
+
+Efforts like OneLLM and ImageBind-LLM integrate multi-modal data using unified or separate encoders, respectively \cite{han2023onellm, zhang2023llamaadapter}. Yet, these methods process modalities independently before feature-space merging, which is suboptimal without effective multi-modal fusion.
+
+

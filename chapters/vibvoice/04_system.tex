@@ -1,0 +1,158 @@
+
+\section{Methodology}
+\label{sec:vibvoice_method}
+\subsection{Overview of VibVoice}
+\label{sec:vibvoice_overview}
+\begin{figure*}
+  \centering
+  \includegraphics[width=.85\textwidth]{chapters/vibvoice/figure/overview.pdf}
+  \caption{The overview of \textit{VibVoice} system. We first augment the acceleration data using a large public speech dataset with estimated Bone Conduction Functions (e.g., the greed box). Then, we train a multi-modal DNN for speech reconstruction (e.g., the purple box).}
+  \label{fig:vibvoice_overview}
+\end{figure*}
+Motivated by our findings in Section. \ref{sec:vibvoice_measurement}, bone-conducted vibration is a promising complementary sensing modality to microphone recording for speech enhancement under environmental noises. 
+However, the limited sample rate of HMW's accelerometer and diverse frequency responses of bone-conducted vibration introduce challenges for multi-modal speech enhancement. 
+On the other hand, although it is possible to adapt existing audio-only DNN-based speech enhancement models \citep{michelsanti2021overview,sun2021ultrase, zhang2021sensing,liu2021wavoice, ozturk2021radiomic} to take both inputs, there is no large dataset with paired acceleration and audio on HMWs available.
+
+We design \textit{VibVoice}, a speech enhancement system for HMWs that leverages both the microphone recording and the speech information from the bone-conducted vibrations.
+Fig. \ref{fig:vibvoice_overview} overviews the design of VibVoice, which contains three components: estimation of Bone Conduction Function, data augmentation, and speech reconstruction network.
+% The system overview is shown in Fig. \ref{fig:vibvoice_overview}. 
+First, we estimate a set of Bone Conduction Functions using a small paired acceleration-audio dataset collected from volunteers in Section. \ref{sec:vibvoice_function}. 
+We note that this estimation does not resort to black-box deep learning approaches, which require a huge amount of training data. Instead, we take advantage of prior knowledge that a frequency response exists between the acceleration and audio spectrograms. 
+Then, we augment the acceleration data using the public audio dataset \textit{LibriSpeech} \citep{panayotov2015librispeech} with Bone Conduction Functions in Section. \ref{sec:vibvoice_aug}.
+Finally, after generating a large amount of paired acceleration-audio dataset, we train a DNN model which can reconstruct the clean audio from microphone audio and the acceleration data in Section. \ref{sec:vibvoice_network}. 
+
+\subsection{Bone Conduction Function}
+\label{sec:vibvoice_bcf}
+\subsubsection{Function Formulation}
+
+Measurements in Section. \ref{sec:vibvoice_measurement} show that the acceleration contains acoustic vibrations caused by bone conduction effects. There are two characteristics of acoustic vibrations: a limited sample rate up to $800~\text{Hz}$ and diverse amplitude suppression levels at frequency bands. We model the vibration sensed by the accelerometer as follows: 
+\begin{equation}
+  s_{acc} = f(s_{mic}) + \epsilon_{acc}=f(s_{speech} + \epsilon_{mic}) + \epsilon_{acc},
+  \label{math:transfer_function}
+\end{equation}
+where $s_{acc}$ and $s_{mic}$ are the raw data captured by the accelerometer and the microphone, respectively; $s_{speech}$ denotes the ground-truth (clean) speech audio; $\epsilon_{acc}$ and $\epsilon_{mic}$ are environmental noises captured by the accelerometer and the microphone, respectively; and $f$ is the Bone Conduction Function.
+
+\subsubsection{Function Estimation}
+\label{sec:vibvoice_function}
+To estimate the Bone Conduction Function, we recruit volunteers and record a five-minute speech for each person with EarSense and AirPods Pro. The volunteers are asked to read from a daily conversation material \citep{Everyday75:online} in a silent environment. We split paired data into 5-second windows, and each window can contribute one Bone Conduction Function.
+
+First, we compute the spectrograms $STFT_{acc}$ and $STFT_{mic}$ of $s_{acc}$ and $s_{mic}$ for each window using short-time Fourier transform (STFT), respectively.
+Then, we apply Otsu's method \citep{otsu1979threshold} to $STFT_{acc}$ and $STFT_{mic}$ for automatic image thresholding, and then discard the bins whose value is lower than a threshold to remove outlier noises.
+We note that our thresholding setting can leverage temporal information, which can better diminish the noise than a constant threshold on the frequency or time domains.
+Furthermore, we perform the pixel-wise division between $STFT_{acc}$ and $STFT_{mic}$ to obtain a response spectrogram, selecting the lower frequency part of the audio spectrogram to align to the acceleration spectrogram. 
+We model the Bone Conduction Function using the Gaussian distribution in the frequency domain since the frequency response (as shown in Fig. \ref{fig:vibvoice_bcf}) has a non-trivial variance due to the complex structure of the head skeleton \citep{chang2016development}. 
+In particular, we compute $f=S_{acc}/S_{mic}$ for the corresponding time window in $STFT_{acc}$ and $STFT_{mic}$, respectively. The function $f\sim N(\mu,\sigma^2)$, in which $\mu$ and variance $\sigma$ contribute to the contour and fluctuation of frequency response, respectively.
+We measure $\mu$ and $\sigma$ for each time window to construct the parameter pool of Bone Conduction Functions. 
+
+\subsubsection{Data Augmentation with Bone Conduction Functions}
+\label{sec:vibvoice_aug}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.35\textwidth]{chapters/vibvoice/figure/synthetic_compare.pdf}
+    \caption{Augmented (upper) and real (lower) Acceleration.}
+    %\vspace{-1em}
+    \label{fig:vibvoice_synthetic_compare}
+\end{figure}
+We develop a data augmentation approach with Bone Conduction Functions described in Section. \ref{sec:vibvoice_function}.
+Note that we cannot apply the inverse Bone Conduction Function to turn the acceleration back to audio due to the significantly limited sample rate of acceleration data. In addition, the frequency band (larger than $500\,\text{Hz}$) has very slim energy, which can cause unreasonable large energy after the inversion.
+We utilize these functions to generate acceleration signals using a large-scale audio dataset, i.e., LibriSpeech \citep{panayotov2015librispeech}. 
+To be specific, for each audio clip, we first select a Bone Conduction Function (i.e., a list of means and variances over different frequencies) from the pool randomly. 
+Then, we restore the frequency response from the Gaussian distribution of given parameters. 
+Lastly, we can augment the audio to synthetic acceleration data by directly multiplying the frequency response. 
+
+Fig. \ref{fig:vibvoice_synthetic_compare} shows the spectrograms of augmented acceleration and real acceleration signals, respectively. The augmented spectrogram is close to the real acceleration spectrogram. 
+We compute the similarity by calculating the mean of the absolute distance of all pixels in the whole spectrogram and divide it by the largest value of the real acceleration spectrogram. The average error for all volunteers is only 4.5\%, which indicates that our proposed acceleration augmentation is reliable. 
+
+\subsection{Multi-Modal Speech Reconstruction}
+\label{sec:vibvoice_network}
+Since the sample rate of the microphone is $16\,\text{kHz}$ while the accelerometer is only $1.6\,\text{kHz}$. The reconstruction of high-quality audio from acceleration is an ill-posed task since it requires predicting the lost patterns of the high-frequency band.
+Moreover, as we have already generated a large-scale paired acceleration-audio dataset, we can unleash the strong feature extraction capability of DNNs for training. Compared with hand-crafted signal processing approaches, deep learning is robust to diverse inputs. Specifically, we adapt the multi-modal fusion paradigm \citep{sun2021ultrase, zhang2021sensing} and encoder-decoder architecture based on U-net \citep{ronneberger2015u} to build the deep learning model. 
+Fig. \ref{fig:vibvoice_CNN} overviews of the DNN design, which is described in detail as follows.
+
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=.5\textwidth]{chapters/vibvoice/figure/network.pdf}
+  %\vspace{-2em}
+  \caption{Overview of our proposed multi-modal network for speech enhancement.}
+  \label{fig:vibvoice_CNN}
+\end{figure}
+
+\begin{table}[ht!]
+\centering
+\begin{subtable}[t]{0.5\textwidth}
+\centering
+\begin{tabular}{lccccccc}\toprule
+& \multicolumn{4}{c}{Encoder} & \multicolumn{3}{c}{Decoder}
+\\\cmidrule(lr){2-5} \cmidrule(lr){6-8}
+Layer & 1 & 2 & 3 & 4 & 1 &2 &3 \\\midrule
+Filters &16 &32&64&128 & 64&32 & 16\\ 
+Kernel &3 &3&3&3&3&3&3\\ 
+Scale &1 &1&0.5&0.5&1&2&2\\
+\bottomrule
+\end{tabular}
+\caption{\label{table1}Acceleration branch.}
+\end{subtable}
+
+\begin{subtable}[t]{0.5\textwidth}
+\begin{tabular}{lcccccccccc}\toprule
+& \multicolumn{5}{c}{Encoder} & \multicolumn{5}{c}{Decoder}
+\\\cmidrule(lr){2-6} \cmidrule(lr){7-11}
+Layer  & 1 & 2 & 3 & 4 & 5 & 1 &2 &3 &4 & 5  \\\midrule
+Filters &16 &32&64&128&256& 128 &64 & 32 & 16 & 1 \\ 
+Kernel &3 &5&5&5&5&5& 5 &5 & 5 &3\\ 
+Scale &0.5 & 0.5 &0.5 &0.5 & 0.5 & 2 &2 & 2 & 2 & 2\\
+\bottomrule
+\end{tabular}
+\caption{\label{table2}Audio branch.}
+\end{subtable}
+\caption{{The design of DNN for multi-modal speech reconstruction.}}
+\end{table}
+
+\subsubsection{\textbf{Architecture}}
+Table \ref{table1} and \ref{table2} show the hyperparameters of our multi-modal neural network of the acceleration and audio branches, respectively. The details are illustrated as follows.
+
+\noindent\textbf{Encoder}.
+We use two convolutional networks (CNNs) to encode the high-level features from the two modalities, respectively. Then, we concatenate the features from two encoders along the channel dimension. We stack basic blocks to construct the encoder, where each block consists of a 2D convolutional layer, batch normalization, ReLU activation, and max-pooling. We also design a residual shortcut of the block input before the last deconvolution layer to expedite the training. The filters increase when the layer gets deeper to extract more diverse features. To increase the reception field to capture the harmonic pattern of the whole spectrogram, we use dilated convolution rather than the conventional one.
+Since the sample rate of audio data (i.e., $16\,\text{kHz}$) is ten times higher than that of the acceleration data ($1.6\,\text{kHz}$), the size of the audio spectrogram on the frequency axis is also ten times larger. We note that the feature maps from the two modalities should have the same shape at the end of the encoders. Therefore, we discard the parts of the audio spectrogram whose frequency is higher than $6.4\,\text{kHz}$, making the remaining audio frequency band exactly eight times larger than the acceleration data (i.e., $0.8\,\text{kHz}$). In addition, the audio subnet (i.e., encoder) has three more down-sample operations than the acceleration branch to make the output sizes of the two modalities' features consistent. 
+
+\noindent\textbf{Decoder}.
+We design two decoders: a fusion decoder and an auxiliary decoder. The decoder has the same design of blocks as the encoder, but the stacked blocks have a decreasing number of filters but increasing sizes of the output tensor. 
+The fusion decoder receives both modalities' features via a concatenation and outputs a spectrogram mask. To obtain the constructed clean spectrogram, this mask will be overlaid on the original noisy audio spectrograms by element-wise multiplication. 
+The auxiliary decoder only receives the feature of the accelerometer and predicts the low-frequency part of clean audio. The self-supervised loss can prevent the acceleration encoder from being dominated by the audio input, given that the noisy input audio is similar to the clean audio to acceleration by nature (i.e., both are audio).
+
+\subsubsection{\textbf{Waveform reconstruction}}
+After obtaining the enhanced spectrogram from the multi-modal decoder, the last step is converting the spectrogram to the waveform using inverse short-time Fourier transform (ISTFT). The DNN of VibVoice only reconstructs the magnitude of the spectrogram. Since the phase of the speech spectrogram is hardly predictable, we use the same phase of the noisy audio signal for the output. Our insight is that although the audio phase can be polluted in a noisy environment, our reconstructed magnitude can attenuate the unwanted time-frequency pixels in spectrograms, which restricts the interference of the noisy phase. Although several works \citep{sun2021ultrase,zhang2021sensing} try to estimate the clean phase by a subnet or a pre-defined algorithm, our tests show that the predicted phase is unstable, and their improvements are marginal and computationally expensive.
+
+\subsubsection{\textbf{Model Training}}
+\label{sec:vibvoice_training}
+We generate a pool of Bone Conduction Functions by performing cubic interpolation on existing functions from our dataset. We use Gaussian distribution to alleviate our model's overfitting and improve the generalizability among users. In addition, we augment the data with Gaussian distribution based on each frequency band to preserve the low-pass features.
+Thus, the limited Bone Conduction Functions can augment a large acceleration-audio dataset from an existing public dataset with diverse features. This dataset can extract the basic features of multiple modalities, but it is not enough for deployment because of the difference between the target user and our pool of Bone Conduction Functions. 
+Therefore, we collected another acceleration-audio paired dataset from a different group of volunteers to train the model, which is also used to evaluate VibVoice's performance. 
+Note that VibVoice does not require any data from the target user either during the Bond Conduction Function estimation or model training.
+All evaluations adopt leave-one-out validation. We pick one user as the testing dataset, while the others are regarded as the training dataset. 
+
+Although the training of VibVoice does not require any data from the target user, one-shot data from the target domain can further improve the overall performance. This data collection can share the recorded data during the setup of HMWs, e.g., the personalized model for calling voice assistants, which incurs no extra overhead to the user. In addition, VibVoice can record data when the user is speaking in a quiet environment. As the data collection doesn't require specific content, our system can unobtrusively record user-specific data during the long-time usage of HMWs and improve the performance of the target user continuously. 
+
+The fusion decoder uses the STFT Loss \citep{defossez2020real}. We use $y$ and $\hat{y}$ to represent the clean and enhanced signals. The STFT loss can be denoted as follows: 
+\begin{align} 
+\label{math:stft_loss}
+\begin{split}
+    L_{stft}(y, \hat{y}) &= L_{sc}(y, \hat{y}) + L_{mag}(y, \hat{y}),
+    \\
+    L_{sc}(y, \hat{y}) &= \frac{||STFT(y)| - |STFT(\hat{y})||_{F}}{||STFT(y)||_{F}},
+    \\
+    L_{mag}(y, \hat{y}) &= \frac{1}{T}|log|STFT(y)| - log|STFT(\hat{y})||_{1},
+\end{split}
+\end{align} 
+where $L_{sc}$ refers to convergence
+(sc) loss and $L_{mag}$ refers to the magnitude (mag) loss.
+We use Mean Square Error (MSE) as the training loss for the auxiliary decoder. The fusion decoder and auxiliary decoder targets are full-band clean spectrogram and lower-band clean spectrogram, respectively. The final loss is formulated as follows: 
+\begin{align} 
+\label{math:overall_loss}
+\begin{split}
+    L(y, \hat{y}) &= L_{stft}(y, \hat{y}) + |y_{lowband} - \hat{y}_{lowband}|_{2} \times \lambda,
+\end{split}
+\end{align}
+which is the joint loss function that covers both fusion and auxiliary decoder. We set $\lambda$ to 0.05 to balance the scales of two losses.
+

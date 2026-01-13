@@ -75,6 +75,11 @@
 \usepackage{microtype}
 
 
+% Multiple bibliographies (for a filtered Publication section)
+\usepackage{multibib}
+\newcites{pub}{Publication}
+
+
 
 % You need the footmisc package with the stable option if you want to have
 % footnotes inside section titles, for example to say that a particular chapter
@@ -118,37 +123,28 @@ Coupling on Head-mounted Wearables} % needs to match title on DAC
 %\copyrightpage
 \committeepage
 \begin{abstract}
-  True Wireless Stereo (TWS) earphones are a key type of head-mounted wearable (HMW), which also includes VR/AR headsets and smart glasses. These smart devices are designed to be worn on the ears or head. Popular products like Apple AirPods have made earphones the largest segment in the wearable device market, with an estimated global shipment of 455 million units in 2024, reflecting an 11.2\% year-on-year growth.
-Typically, there are two main types of sensors on earphones: microphones and inertial measurement units (IMUs). Note that these technologies are commonly used in all head-mounted wearables, not just earphones.
-The sensing abilities of earphones are often limited because manufacturers prioritize delivering content, like spatial audio and 3D video. Therefore, this dissertation aims to enhance the sensing capabilities of earphones.
-Unlike existing research that typically focuses on either the environment or the user, our work uniquely models both through the principle of \textit{user-environment coupling}. This principle recognizes that comprehensive understanding of human behavior requires modeling the dynamic interplay between individuals and their surroundings across three fundamental dimensions: the acoustic boundary between user-generated sounds and environmental noise, the contextual relationship between user activities and ambient scenarios, and the social fabric connecting multiple users through shared acoustic and spatial contexts. By leveraging earphones' unique capability for user-environment differentiation through multi-modal sensing, this dissertation demonstrates how earphones can serve as a comprehensive platform for human-centric sensing.
+  True Wireless Stereo (TWS) earphones have become the largest class of head-mounted wearables (HMWs), offering a uniquely ego-centric vantage point on both the user and their surroundings. Situated at the ear, their microphones and inertial measurement units (IMUs) capture user-generated signals (e.g., speech, bone-conducted vibrations, motion) together with ambient sound, making them a natural platform for modeling \textit{user–environment coupling}. This thesis formalizes user–environment coupling across three dimensions—acoustic, contextual, and social—and shows how earphones can enable richer, privacy-preserving sensing without relying on cameras.
 
-This dissertation specifically introduces \textit{VibVoice}, a novel speech enhancement system that leverages bone vibrations conducted through the skull, captured by accelerometers widely available in head-mounted wearables. Environmental noise can significantly interfere with voice-related applications on these devices, which represents one of the key interactions between humans and their surroundings.
-We develop a lightweight multi-modal architecture featuring a two-branch encoder-decoder deep neural network that fuses high-level features from both audio and vibration modalities to reconstruct clean speech. To address the challenge of insufficient paired training data, we conduct extensive measurements of bone conduction effects to extract physical impulse responses for cross-modal data augmentation. Our evaluation demonstrates that VibVoice achieves up to 21\% improvement in PESQ and 26\% improvement in SNR over state-of-the-art baselines while requiring 72 times less paired data. A user study with 35 participants shows that 87\% prefer VibVoice over the baseline. Additionally, VibVoice achieves 4 to 31 times faster execution on mobile devices compared to baselines.
+We first introduce \textit{VibVoice}, a lightweight multi-modal speech enhancement system that leverages bone-conducted vibrations from IMUs to condition audio separation. VibVoice fuses high-level features from air microphones and accelerometers via a two-branch encoder–decoder and overcomes limited paired data by augmenting with measured bone-conduction impulse responses. Experiments show up to +21\% PESQ and +26\% SNR over strong baselines while using 72$\times$ less paired data; 87\% of 35 participants preferred VibVoice. On mobile hardware, VibVoice runs 4–31$\times$ faster than baselines.
 
-We then extend the sensing capabilities of earphones beyond vocal activities to fine-grained activity logging. We propose \textit{EgoLog}, a sensing system that enables fine-grained activity logging using existing sensors in commercial earphones. The system records both user activities and contextual scenarios, facilitating detailed behavior understanding.
-EgoLog addresses three key challenges: limited recognition capability due to sparse sensor configurations, ineffective fusion for extracting ambient information, and interference from environmental noise. Our system architecture comprises a context-aware scenario recognition module and a spatial-aware activity detection module, integrated with other attributes through expert knowledge. Implemented on commercial earphones equipped with binaural microphones and an IMU, EgoLog achieves zero-shot fine-grained activity logging across up to 41 categories, outperforming strong baselines such as ImageBind-LLM by 38\% in F1-score.
+Next, we present \textit{EgoLog}, which extends sensing beyond vocal activity to fine-grained activity and scenario logging using commodity earphones. EgoLog combines spatial-aware activity detection with context-aware scenario recognition and integrates auxiliary attributes via expert knowledge. Deployed on binaural microphones and an IMU, EgoLog achieves zero-shot logging across up to 41 categories and outperforms ImageBind-LLM by 38\% in F1-score.
 
-Finally, we scale up our system into a multi-device collaborative paradigm. Specifically, we propose \textit{CoHear}, the first collaborative speech enhancement system that operates at the conversation level across multiple earphones. To enable real-time conversation enhancement, the system performs holistic modeling of all conversation participants and effectively extracts target speech from acoustic mixtures. CoHear makes two key contributions: 1) a conversation-driven network protocol that enables mobile, infrastructure-free coordination among earphone devices, and 2) a robust target conversation extraction model that leverages relay audio in a bandwidth-efficient manner. Evaluation through real-world experiments and simulations demonstrates that our conversation network achieves over 90\% accuracy in group formation, improves speech quality by up to 8.8 dB over state-of-the-art baselines, and maintains real-time performance on mobile devices. A user study with 20 participants confirms CoHear's superior performance and good usability compared to baselines.
+Finally, we propose \textit{CoHear}, the first collaborative, conversation-level speech enhancement system across multiple earphones. CoHear introduces a conversation-driven, infrastructure-free protocol for mobile coordination and a bandwidth-efficient target conversation extraction model that leverages relay audio. Real-world experiments and simulations demonstrate >90\% accuracy in group formation, up to +8.8 dB improvement over baselines, and real-time performance on mobile devices; a 20-participant user study confirms superior quality and usability.
 
-In summary, this dissertation presents three systems that instantiate the user-environment coupling principle across acoustic, contextual, and social dimensions on HMWs with existing sensors. These systems provide not only detailed implementation but also bring new insights into the mobile sensing community, demonstrating how earphones can serve as a comprehensive platform for understanding users through their environmental context.
+Together, VibVoice, EgoLog, and CoHear operationalize user–environment coupling on HMWs and demonstrate that acoustic, contextual, and social signals can be jointly exploited to transform earphones into comprehensive, human-centric sensing platforms.
 
 \end{abstract}
 
 \begin{cabstract}
-  真无线立体声（TWS）耳机是头显可穿戴设备（HMW）的一种重要类型，其他类型还包括虚拟现实/增强现实（VR/AR）头显和智能眼镜。这些智能设备设计为佩戴在耳朵或头部。以苹果AirPods为代表的热门产品使耳机成为可穿戴设备市场中最大的细分市场，预计2024年全球出货量将达到4.55亿台，同比增长11.2\%。
+  真无线立体声（TWS）耳机已成为头戴式可穿戴设备（HMW）中规模最大的类别。耳边的麦克风与惯性测量单元（IMU）可同时捕获用户信号（如语音、骨传导振动、运动）与环境声音，是建模\textit{用户–环境耦合}的天然平台。本论文在声学、上下文与社交三个维度形式化用户–环境耦合，并展示在不依赖摄像头的前提下，耳机如何实现更丰富且注重隐私的感知。
 
-通常，头显可穿戴设备采用两种主要的感知技术：麦克风和惯性测量单元（IMU）。这些技术不仅限于耳机，而是广泛应用于所有头显可穿戴设备。然而，耳机的感知能力常常受限，因为制造商更专注于内容传递，例如空间音频和3D视频。因此，本论文旨在提升头显可穿戴设备的感知能力。
+我们首先提出 \textit{VibVoice}，一种轻量多模态语音增强系统，利用 IMU 的骨传导振动对音频分离进行条件约束。VibVoice 采用双分支编码器–解码器融合气声麦克风与加速度计的高级特征，并通过测量骨传导冲激响应进行数据增强以缓解配对数据不足。实验表明：在配对数据减少 72 倍的情况下，VibVoice 相比强基线在 PESQ 提升最多 21\%、SNR 提升 26\%；35 名参与者中有 87\% 更偏好 VibVoice；在移动硬件上较基线快 4–31$\times$。
 
-与现有耳机感知研究不同，我们的工作独特地通过\textit{用户-环境耦合}原理同时建模环境和用户。该原理认为，全面理解人类行为需要建模个体与其周围环境之间的动态交互，涵盖三个基本维度：用户生成声音与环境噪声之间的声学边界、用户活动与环境场景之间的上下文关系，以及通过共享声学和空间上下文连接多个用户的社交结构。通过利用耳机独特的多模态感知能力实现用户-环境区分，本论文展示了耳机如何成为以人为中心的综合感知平台。
+接着我们提出 \textit{EgoLog}，将感知扩展至细粒度活动与场景记录，使用商用耳机即可实现。系统结合空间感知的活动检测与上下文感知的场景识别，并通过专家知识集成辅助属性。部署于双耳麦克风与 IMU 的耳机上，EgoLog 在多达 41 个类别上实现零样本记录，F1 分数较 ImageBind-LLM 提高 38\%。
 
-本论文具体介绍了 VibVoice，这是一种新颖的语音增强系统，利用头显可穿戴设备中广泛可用的加速度计捕获通过颅骨传导的骨振动。环境噪声会显著干扰这些设备上的语音相关应用，这是人类与环境交互的关键方面之一。我们开发了一种轻量级多模态架构，采用双分支编码器-解码器深度神经网络，融合音频和振动两种模态的高级特征以重建干净语音。为了解决配对训练数据不足的挑战，我们广泛测量骨传导效应，提取物理冲激响应用于跨模态数据增强。评估结果表明，VibVoice 在 PESQ 指标上比最先进的基线提高了21\%，在信噪比（SNR）上提高了26\%，同时所需配对数据减少了72倍。一项包含35名参与者的用户研究显示，87\%的用户更偏好 VibVoice。此外，VibVoice 在移动设备上的执行速度比基线快4到31倍。
+最后我们提出 \textit{CoHear}，首个跨多耳机的协作式、对话级语音增强系统。CoHear 设计对话驱动、无基础设施的移动协调协议，并提出带宽高效的目标对话提取模型，利用中继音频。真实实验与仿真表明：群组形成准确率 >90\%，较基线语音质量最高提升 8.8 dB，并在移动设备上保持实时性；20 人用户研究验证其质量与可用性优势。
 
-随后，我们将耳机的感知能力扩展到语音活动之外，实现细粒度活动记录。我们提出了 EgoLog，一种使用商用耳机现有传感器实现细粒度活动记录的感知系统。该系统记录用户活动和上下文场景，促进详细的行为理解。EgoLog 解决了三个关键挑战：稀疏传感器配置导致的识别能力有限、提取环境信息的低效融合，以及环境噪声干扰。我们的系统架构包括上下文感知的场景识别模块和空间感知的活动检测模块，通过专家知识与其他属性集成。在配备双耳麦克风和IMU的商用耳机上实现的 EgoLog，实现了多达41个类别的零样本细粒度活动记录，F1分数比 ImageBind-LLM 等强基线高出38\%。
-
-最后，我们将系统扩展为多设备协作范式。具体来说，我们提出了 CoHear，这是首个在多只耳机之间进行对话级语音增强的协作系统。为了实现实时对话增强，该系统对所有对话参与者进行整体建模，并有效从声学混合物中提取目标语音。CoHear 做出了两个关键贡献：1）一种对话驱动的网络协议，实现耳机设备之间移动、无基础设施的协调；2）一种鲁棒的目标对话提取模型，以带宽高效的方式利用中继音频。通过实际实验和仿真评估表明，我们的对话网络在群体形成方面准确率超过90\%，语音质量比最先进的基线提高了高达8.8分贝，并在移动设备上保持实时性能。一项包含20名参与者的用户研究证实了 CoHear 相比基线的卓越性能和良好可用性。
-
-总之，本论文提出了三种系统，在声学、上下文和社交维度上通过头显可穿戴设备现有传感器实例化用户-环境耦合原理。这些系统不仅提供了详细的实现方案，还为移动感知社区带来了新的见解，展示了耳机如何成为通过环境上下文理解用户的综合平台。
+综上，VibVoice、EgoLog 与 CoHear 将用户–环境耦合在 HMW 上系统化落地，表明可联合利用声学、上下文与社交信号，把耳机发展成全面、以人为中心的感知平台。
 \end{cabstract}
 
 % Center headings for table of contents, LOT, and LOF and make them smaller so
@@ -165,7 +161,7 @@ In summary, this dissertation presents three systems that instantiate the user-e
 \listoftables
 \listoffigures
 \begin{acknowledgments}  
-  I would like to thank my thesis committee members for their valuable and constructive comments. Furthermore, I want to express my gratitude to the professors in the Department of Systems Engineering and Engineering Management.  
+  I would like to thank my thesis committee members for their valuable and constructive comments. Furthermore, I want to express my gratitude to the professors in the Department of Information Engineering.  
 \end{acknowledgments}
 %\begin{dedication}
 %  To my parents and my girl friend. 
@@ -182,17 +178,36 @@ In summary, this dissertation presents three systems that instantiate the user-e
 \chapter{Introduction}\label{ch:intro}
 \input{chapters/chapter1-intro.tex}
 
-\chapter{Literature Review}\label{ch:background}
-\input{chapters/chapter2-background.tex}
+\chapter{Literature Review}\label{ch:related}
+\input{chapters/chapter2-related.tex}
+
+\chapter{The Technical Background}\label{ch:background}
+\input{chapters/chapter3-background.tex}
 
 \chapter{VibVoice: Towards bone-conducted vibration speech enhancement on head-mounted wearables}\label{ch:vibvoice}
-\input{chapters/chapter3-vibvoice.tex}
+\input{chapters/chapter4-vibvoice.tex}
 
 \chapter{EgoLog: Ego-Centric Fine-Grained Daily Log with Ubiquitous Wearables}\label{ch:egolog}
-\input{chapters/chapter4-egolog.tex}
+\input{chapters/chapter5-egolog.tex}
 
 \chapter{CoHear: Conversation Enhancement via Multi-Earphone Collaboration}\label{ch:cohear}
-\input{chapters/chapter5-cohear.tex}
+\input{chapters/chapter6-cohear.tex}
+
+\chapter{Conclusion and Future Work}\label{ch:conclusion}
+
+\section{Conclusion}
+This thesis demonstrates that modeling the coupling between users and their environments enables richer sensing on head-mounted wearables using existing microphones and IMUs. We introduced three systems that operationalize this principle. VibVoice leverages bone-conduction vibrations with cross-modal augmentation to deliver lightweight speech enhancement robust to environmental noise. EgoLog shows that earphones can support fine-grained, zero-shot activity and scenario logging through spatial- and context-aware fusion. CoHear scales sensing to collaborative, conversation-level enhancement with a bandwidth-efficient relay protocol and target extraction model. Together, these systems illustrate how acoustic, contextual, and social signals can be jointly exploited to transform earphones into comprehensive, human-centric sensing platforms.
+
+\section{Future Work}
+Several promising directions can extend this work:
+\begin{itemize}
+  \item \textbf{Proactive, user-centric agents:} Combine ear-level sensing with large language models to build assistants that respond to instructions and proactively act on habits, routines, and ambient context. This includes intent inference from acoustic scenes and motion, interruption management, and preference learning under tight latency and energy budgets.
+  \item \textbf{Fully on-device pipelines:} Push speech enhancement, activity logging, and collaboration stacks onto earphone-class hardware through pruning, quantization, distillation, and neural architecture search tailored to DSP/MCU constraints. Explore event-driven pipelines that wake heavier models only when confidence drops.
+  \item \textbf{Foundation models and datasets:} Pretrain compact multi-modal models on ear-level microphones and IMUs, backed by large, diverse in-the-wild collections. Label-efficient strategies (self-supervision, pseudo-labeling, active learning) can broaden zero-shot coverage beyond speech and daily activities to social and affective cues.
+  \item \textbf{Long-term deployments:} Run month-scale field studies to evaluate robustness under lifestyle, device, and environmental diversity. Track drift, compliance, and social acceptability; study ethical implications of continuous audio sensing and collaborative enhancement; and establish benchmarks for failure modes and recovery.
+\end{itemize}
+
+
 
 
 
@@ -214,6 +229,14 @@ In summary, this dissertation presents three systems that instantiate the user-e
   \bibliography{references_all}
   % \bibliography{references, chapters/vibvoice/reference}
   % \bibliography{references, chapters/vibvoice/reference, chapters/egolog/reference}
+\end{singlespacing}
+
+
+\begin{singlespacing}
+  \section*{Publications Related to the Thesis}
+  \bibliographystylepub{acl_natbib}
+  \nocitepub{*} % List all related keys here
+  \bibliographypub{references_me}
 \end{singlespacing}
 
 % Appendices from all chapters should go at the end

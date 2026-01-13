@@ -1,9 +1,9 @@
 \section{System Design}
-\label{sec:system}
+\label{sec:cohear_system}
 
 
 \subsection{Design Overview}
-\label{sec:overview}
+\label{sec:cohear_overview}
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\linewidth]{chapters/cohear/figs/overview.pdf}
@@ -18,16 +18,16 @@ To construct such a network, the first step is to define its basic components: p
 Given the definition of the conversation network, the next step is to implement it in the real world using earphones, as shown on the right side of Fig. \ref{fig:system overview}. CoHear employs a two-stage process for conversation modeling. In the first stage, we set up the conversation through acoustic sensing and optimization, and in the second stage, we perform enhancement powered by the network.
 
 The implementation consists of three core components:
-First, the \textbf{node discovery} module acts as the front end of our system, where nearby nodes (i.e., speakers) are identified using deep learning-based sound source localization. We extract both the locations and embeddings of each speaker to serve as input for the next stage. Note that this process applies to all speakers wearing earphones; further details are provided in Sec. \ref{sec:acoustic}.
-Second, \textbf{geometric calibration} is performed in a centralized manner by aggregating the outputs of the node discovery module from each speaker, as discussed in Sec. \ref{sec:geometric}. Although each node can only observe others within its local coordinate system, we iteratively optimize a shared global geometry. The more observations we obtain from the speakers, the more stable the optimization becomes. After completing the initial optimization with a cold start, we can track the speakers in real time.
-Once the conversation network is established, the final component, \textbf{conversation enhancement}, performs conversation-level speech enhancement based on the identified participants (described in Sec. \ref{sec:conversation}). Specifically, both the speaker embedding (time-invariant) and the relay signal (time-variant) are used as cues for the conditional speech enhancement model. We introduce an audio control module to balance the contributions of these two approaches.
+First, the \textbf{node discovery} module acts as the front end of our system, where nearby nodes (i.e., speakers) are identified using deep learning-based sound source localization. We extract both the locations and embeddings of each speaker to serve as input for the next stage. Note that this process applies to all speakers wearing earphones; further details are provided in Sec. \ref{sec:cohear_acoustic}.
+Second, \textbf{geometric calibration} is performed in a centralized manner by aggregating the outputs of the node discovery module from each speaker, as discussed in Sec. \ref{sec:cohear_geometric}. Although each node can only observe others within its local coordinate system, we iteratively optimize a shared global geometry. The more observations we obtain from the speakers, the more stable the optimization becomes. After completing the initial optimization with a cold start, we can track the speakers in real time.
+Once the conversation network is established, the final component, \textbf{conversation enhancement}, performs conversation-level speech enhancement based on the identified participants (described in Sec. \ref{sec:cohear_conversation}). Specifically, both the speaker embedding (time-invariant) and the relay signal (time-variant) are used as cues for the conditional speech enhancement model. We introduce an audio control module to balance the contributions of these two approaches.
 
 \paragraph{Conversational network}
 To define our conversation network, the first step is answering the question: How can we technically model the conversation?'' Specifically, we break down a conversation into individual interactions performed by each participant, such as when user A speaks to user B. We observe that such a definition is similar to the concept of computer networking, where a sender sends pairing messages to find a receiver.
 Accordingly, we construct a conversation network comprising all participants that can be successfully paired with the same conversation.
 It is important to note that existing platforms, such as Livekit \cite{livekit}, provide real-time audio-visual sharing via WebRTC \cite{blum2021webrtc} Selective Forwarding Units (SFUs). In contrast, CoHear builds upon these platforms and extends their capabilities with advanced conversation modeling.
 
-To enable the pairing of networks, we consider two features as discussed in Sec. \ref{sec:related}: verbal and non-verbal. Since the verbal feature (turn-taking) needs to wait for enough time before being effective, we consider the non-verbal feature as the main factor to determine the conversation.
+To enable the pairing of networks, we consider two features as discussed in Sec. \ref{sec:cohear_related}: verbal and non-verbal. Since the verbal feature (turn-taking) needs to wait for enough time before being effective, we consider the non-verbal feature as the main factor to determine the conversation.
 We consider that a person's head orientation is a key indicator of their willingness to engage in conversation, both to speak and to listen. We define a conversation as requiring a bidirectional interest: individuals in the same conversational group must have an interest in at least one other person within the group. This mutual interest is depicted in the bottom left of Fig. \ref{fig:system overview}. As this pairing relies solely on non-verbal cues, we refer to it as the non-verbal pairing of a conversation network.
 If we aim to implement this pairing using audio, sound source localization is a natural consideration. However, while sound source localization can estimate a person's relative position, it is insufficient for identifying conversational groups. This is because the DoA of sound can only determine a unidirectional interest (i.e., who is being listened to). Similarly, Direction-of-Voice also only indicates the other way of interest, so that both DoA and DoV are not the indicators for conversation.
 Formally, combining both DoA and DoV allows us to infer the desired 6 Degrees of Freedom (6DoF) locations of participants. This necessity motivates us to move beyond the limitations of existing sound source localization methods.
@@ -49,13 +49,13 @@ Consequently, the conversation network in our current implementation is primaril
 \end{figure}
 
 \subsection{Node Discovery for Conversation Setup}
-\label{sec:acoustic}
+\label{sec:cohear_acoustic}
 Conversation can be depicted through the interaction between speakers; the speaker presents the interest according to the direction of the voice (also the direction of the head). In CoHear, each user is considered as one node, where we reformulate speaker localization as a dynamic node discovery problem in a mobile acoustic network, as shown in Fig. \ref{fig:acoustic}. Specifically, it is necessary to access both the location and identity of the nearby nodes. We represent the location in local coordinates (the receiver as the root) and the identity as the voiceprint, which is an embedding that represents the voice of the speaker.
 
 While joint estimation of these properties (similar to sound event localization and detection) is theoretically possible, prior work shows such approaches suffer from computational complexity and poor scalability \cite{wang2022nerc}. Instead, we adopt a decoupled two-stage discovery process that separately handles node localization and identity extraction and then fuses the results for network coordination.
 
 \paragraph{Stage one: sound localization}
-As for the sound localization, we extract the cross-channel features as Sec. \ref{sec:background} and utilize a convolutional recurrent neural network (CRNN) to process them, which consists of multiple convolutional layers, a GRU layer, and the final linear layer to predict the output. 
+As for the sound localization, we extract the cross-channel features as Sec. \ref{sec:cohear_background} and utilize a convolutional recurrent neural network (CRNN) to process them, which consists of multiple convolutional layers, a GRU layer, and the final linear layer to predict the output. 
 Specifically, we convert the multi-channel audio recording ($M \times T$) into multiple pairs of recordings ($N \times 2 \times T$), where $N$ refers to all the possible combinations. Then, we apply a log-mel spectrogram transformation for each channel and calculate GCC between every pair of channels. Lastly, we concatenate every pair of channels with the original log-Mel spectrograms as the final representations. For example, the feature has a shape of $(2+1) \times T \times F$ for two-channel audio recordings, which can be considered as the input to the neural network. As for the output format, we represent the sound source location in a cartesian coordinate system ($x, y, z$) with a normalized range of one meter radius ($x^2+y^2+z^2 = 1$), where the output dimension of the last linear layer is 3 with a tanh activation. When there is no sound source, the expected $x,y,z$ are set to zero. During inference, we only consider $x^2+y^2+z^2 > 0.5$ as a valid sound source.
 Considering the output frame length is 0.1 seconds, we need to set the downsample ratio of the neural network to match it. Given the hop length of the spectrogram is 20ms, the time-dimension downsampling is set to 5. Consequently, the output format is $3 \times T/5$.
 
@@ -88,23 +88,23 @@ In summary, the discovered node can be classified into three groups: self-voice,
 \end{figure}
 
 \subsection{Network Geometric Calibration}
-\label{sec:geometric}
-As outlined in our system overview (Sec. \ref{sec:overview}), our ultimate goal is to estimate the positions of all users (nodes) in a conversation network. The previous node discovery step identifies nearby speakers, providing important positional observations. However, these outputs only indicate where people are speaking, not the structure of the conversation network itself. To achieve this, we propose aggregating observations from multiple participants to estimate the network's underlying geometry.
-This task can be formulated as a multi-sensor localization problem, known as geometric calibration. Given that we use acoustic signals for localization, our approach falls within the category of WASN, as discussed in Section \ref{sec:background}.
+\label{sec:cohear_geometric}
+As outlined in our system overview (Sec. \ref{sec:cohear_overview}), our ultimate goal is to estimate the positions of all users (nodes) in a conversation network. The previous node discovery step identifies nearby speakers, providing important positional observations. However, these outputs only indicate where people are speaking, not the structure of the conversation network itself. To achieve this, we propose aggregating observations from multiple participants to estimate the network's underlying geometry.
+This task can be formulated as a multi-sensor localization problem, known as geometric calibration. Given that we use acoustic signals for localization, our approach falls within the category of WASN, as discussed in Section \ref{sec:cohear_background}.
 
 This section details our geometric calibration pipeline. First, we describe how we obtain the necessary inputs: observation sharing and distance estimation, which provide DoA and distance measurements, respectively. Next, we introduce the concept of a Mobile WASN, distinguishing it from conventional Wireless Acoustic Sensor Networks. We then present our improved geometric calibration algorithm, which estimates the final positions of all nodes. Finally, we address two critical implementation factors: 1) reducing the warm-up time through dynamic calibration, and 2) enabling the system to operate with only a single device.
 
 \paragraph{Observation alignment}
-\label{sec:sharing}
+\label{sec:cohear_sharing}
 The principle of geometric calibration is that one source can be observed by multiple nodes, where the relative position is related to the nodes' positions. Thus, it is important to align the source across nodes.
 It is a trivial task when there is only one sound source, but it becomes complicated with 1) overlapping sound, 2) the sound isn't observed by some nodes. Since we have already extracted the corresponding speaker embedding for each source, we can assign the same identity to the sources with similar embeddings.
 Specifically, for the speakers observed by one user (including itself), we pair all of them with the observations from other users and only keep the ones that have high similarity. The similarity is calculated by the cosine similarity of two embeddings.
 A group of sources with more than 0.8 similarity is considered the same source. We don't make the assumption that one source can be observed by all users.
-In practice, every device uploads its observed embeddings from Sec. \ref{sec:acoustic} to a central server and performs the above matching. Only the source that is observed by at least two nodes are considered as valid ones in the following.
+In practice, every device uploads its observed embeddings from Sec. \ref{sec:cohear_acoustic} to a central server and performs the above matching. Only the source that is observed by at least two nodes are considered as valid ones in the following.
 
 \paragraph{Distance estimation}
-\label{sec:distance}
-According to the output of Sec. \ref{sec:acoustic}, we can only obtain the direction of arrival, while the distance to the sound source is skipped.
+\label{sec:cohear_distance}
+According to the output of Sec. \ref{sec:cohear_acoustic}, we can only obtain the direction of arrival, while the distance to the sound source is skipped.
 However, the distance information is important in geometric calibration since the optimization can be under-determined without it. Ideally, audio recordings already embed distance information in a reverberant environment, as illustrated in the following:
 \[
 y(t) = h(t) * x(t) + v(t) = h_{e}(t) * x(t) + h_{l}(t) * x(t) + v(t)
@@ -116,7 +116,7 @@ Despite this design, distance estimation errors may still be significant. Theref
 
 
 \paragraph{Mobile WASN}
-According to Sec. \ref{sec:background}, our network can be considered as mobile WASN, an extension of WASN where the acoustic node can move freely. Similarly, localization of sensor nodes can be achieved by geometric calibration, given sufficient observed sound sources. Compared to the conventional notation, mobile WASN has different assumptions as follows.
+According to Sec. \ref{sec:cohear_background}, our network can be considered as mobile WASN, an extension of WASN where the acoustic node can move freely. Similarly, localization of sensor nodes can be achieved by geometric calibration, given sufficient observed sound sources. Compared to the conventional notation, mobile WASN has different assumptions as follows.
 
 \begin{enumerate}
     \item First, the assumption that only one sound source is present during a measurement is unrealistic due to the possibility of overlapping speech and other background sounds. Specifically, if we denote the maximum number of simultaneous speech sources as \(M\), we can estimate a total of \(M \times K \times L\) instances, which is also compatible with fewer than \(M\) number of sources by adding a blank estimate.
@@ -161,7 +161,7 @@ Meanwhile, selecting an optimal \(\overline{K}\) becomes critical, as it seems t
 While collaborative calibration is the optimal approach, we propose a single-device method for scenarios where networking is impractical or latency is critical. In the evaluation, the above design will be considered as a special case when there is one earphone.
 In geometric calibration, the output for each user is their position (\(P=(x_i, y_i)\))and orientation (\(O=\theta\)) within a shared coordinate system. However, in a single-user scenario, the shared coordinate system is defined relative to the user themself. In this case, the source's position and orientation relative to the user can be described by three key variables: the Direction of Arrival, the distance to the source, and the source's own orientation.
 
-Assuming the sound source localization method from Section \ref{sec:acoustic} provides a reliable DOA, we note that the distance and source orientation variables are still missing. To address this, we modify our model to estimate these two additional variables.
+Assuming the sound source localization method from Section \ref{sec:cohear_acoustic} provides a reliable DOA, we note that the distance and source orientation variables are still missing. To address this, we modify our model to estimate these two additional variables.
 Our neural network already outputs a 3-dimensional vector. We remove the unit vector constraint (\(x^2+y^2+z^2=1\)) to allow the model to represent sources at any distance. Furthermore, we add four additional output nodes to classify the sound source's orientation into one of four categories: front, left, right, or back. We use classification instead of regression for the orientation, as this challenging problem benefits from the increased stability that a classification approach provides.
 
 \begin{figure}[h]
@@ -176,7 +176,7 @@ Our neural network already outputs a 3-dimensional vector. We remove the unit ve
 
 
 \subsection{Conversation Extraction}
-\label{sec:conversation}
+\label{sec:cohear_conversation}
 
 
 \paragraph{Problem formulation}

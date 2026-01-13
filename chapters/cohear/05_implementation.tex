@@ -11,12 +11,12 @@
 
 
 \paragraph{Testbed Setup}
-\label{sec:hardware}
+\label{sec:cohear_hardware}
 We implement CoHear in various form factors, including binaural earphones and headphones with up to an 8-channel microphone array (placement is illustrated in Fig. \ref{fig:mic_loc}). The two earphones are shown in Fig. \ref{fig:hardware}. We use a Raspberry Pi 5 to collect audio and attach one IMU (BMI-160) to the headphones to track head motion, transmitted via I2C. For experimental validation, we connect each device via SSH under the same WiFi network, streaming all data to a desktop for analysis. The system output is designed to be played back through the headphone speakers, maintaining compatibility with existing ANC functionality. 
 
 While our hardware supports sampling rates up to 48 kHz for maximum capture capability, the system is designed to operate at lower rates suitable for real-world deployment.
 For practical speech applications, CoHear can operate at 8 kHz with audio compression to minimize bandwidth requirements, which is also evaluated in the later section.
-Moreover, CoHear supports time-invariant speaker embeddings that require only one-time transmission, significantly reducing data size to 8192 bits in total, which is practical on even constrained networks. We also discuss the networking issue in Sec. \ref{sec:discuss}.
+Moreover, CoHear supports time-invariant speaker embeddings that require only one-time transmission, significantly reducing data size to 8192 bits in total, which is practical on even constrained networks. We also discuss the networking issue in Sec. \ref{sec:cohear_discuss}.
 
 
 \begin{figure}[t]
@@ -43,7 +43,7 @@ We use three data sources to support the design and evaluation of CoHear: a real
 
 \vspace{1ex}
 \noindent\textit{Real-world Collection:}
-We collected 30 minutes of multi-person conversation data in a $10 \times 5$ m motion capture room equipped with a 12-camera VICON system (Fig.~\ref{fig:mocap}). Markers were placed on participants’ heads and upper bodies to track conversational poses. Six volunteers wore our prototype headphones (Section~\ref{sec:hardware}) and engaged in natural turn-taking conversations. Due to space limitations, each session involved 2–4 participants in different grouping scenarios:
+We collected 30 minutes of multi-person conversation data in a $10 \times 5$ m motion capture room equipped with a 12-camera VICON system (Fig.~\ref{fig:mocap}). Markers were placed on participants’ heads and upper bodies to track conversational poses. Six volunteers wore our prototype headphones (Section~\ref{sec:cohear_hardware}) and engaged in natural turn-taking conversations. Due to space limitations, each session involved 2–4 participants in different grouping scenarios:
 1) two participants in one group,
 2) three participants with one excluded, and
 3) four participants split into two groups.

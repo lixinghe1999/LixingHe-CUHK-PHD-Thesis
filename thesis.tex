@@ -196,15 +196,35 @@ Together, VibVoice, EgoLog, and CoHear operationalize user–environment couplin
 \chapter{Conclusion and Future Work}\label{ch:conclusion}
 
 \section{Conclusion}
-This thesis demonstrates that modeling the coupling between users and their environments enables richer sensing on head-mounted wearables using existing microphones and IMUs. We introduced three systems that operationalize this principle. VibVoice leverages bone-conduction vibrations with cross-modal augmentation to deliver lightweight speech enhancement robust to environmental noise. EgoLog shows that earphones can support fine-grained, zero-shot activity and scenario logging through spatial- and context-aware fusion. CoHear scales sensing to collaborative, conversation-level enhancement with a bandwidth-efficient relay protocol and target extraction model. Together, these systems illustrate how acoustic, contextual, and social signals can be jointly exploited to transform earphones into comprehensive, human-centric sensing platforms.
+This thesis demonstrates that modeling the coupling between users and their environments enables richer sensing on head-mounted wearables using existing microphones and IMUs. 
+Under the principle, we introduced three systems for various applications: speech enhancement, activity logging and conversation modeling. 
+VibVoice, which is designed for robust speech enhancement, leverages bone-conducted vibrations with cross-modal augmentation to deliver lightweight yet effective performance under environmental noise, differentiating the user and the environment (including other people).
+The second project, EgoLog, extends sensing beyond vocal activity to fine-grained activity and scenario logging using commodity devices. Specifically, EgoLog combines both the differentiation and fusion of user and environment through spatial- and context-aware modeling. 
+Finally, CoHear scales sensing to collaborative, conversation-level enhancement with a bandwidth-efficient relay protocol and target extraction model, enabling multiple users to jointly improve their listening experience in social settings.
 
 \section{Future Work}
 Several promising directions can extend this work:
 \begin{itemize}
-  \item \textbf{Proactive, user-centric agents:} Combine ear-level sensing with large language models to build assistants that respond to instructions and proactively act on habits, routines, and ambient context. This includes intent inference from acoustic scenes and motion, interruption management, and preference learning under tight latency and energy budgets.
-  \item \textbf{Fully on-device pipelines:} Push speech enhancement, activity logging, and collaboration stacks onto earphone-class hardware through pruning, quantization, distillation, and neural architecture search tailored to DSP/MCU constraints. Explore event-driven pipelines that wake heavier models only when confidence drops.
-  \item \textbf{Foundation models and datasets:} Pretrain compact multi-modal models on ear-level microphones and IMUs, backed by large, diverse in-the-wild collections. Label-efficient strategies (self-supervision, pseudo-labeling, active learning) can broaden zero-shot coverage beyond speech and daily activities to social and affective cues.
-  \item \textbf{Long-term deployments:} Run month-scale field studies to evaluate robustness under lifestyle, device, and environmental diversity. Track drift, compliance, and social acceptability; study ethical implications of continuous audio sensing and collaborative enhancement; and establish benchmarks for failure modes and recovery.
+  \item \textbf{Proactive, user-centric agents:} 
+  While this thesis focuses on applications that benefit users, the interaction between user and system remains largely passive.
+  With advances in large language models and on-device intelligence, future work can explore proactive and personalized assistants that exploit user–environment coupling on head-mounted wearables.
+  We envision proactive speech and audio enhancement agents as natural extensions to VibVoice and CoHear.
+  Such agents could interpret both explicit and implicit user queries, leveraging contextual environmental information to adaptively determine enhancement strategies.
+  For instance, when the user enters a meeting, the agent could automatically enhance the speaker's voice without requiring explicit instruction, seamlessly adjusting to the conversational dynamics.
+
+  \item \textbf{Fully on-device pipelines:} 
+  Current deployments of the three systems rely on companion smartphones for computationally intensive processing. The communication latency between wearables and smartphones introduces overhead that can be critical for latency-sensitive applications, particularly hearing aids where outputs must be delivered within 10–20 ms. Moreover, transmitting all sensor data to a smartphone raises privacy concerns, especially for continuous sensing scenarios.
+  Future work should explore fully on-device pipelines that execute all components directly on earphone-class hardware through model compression techniques—including pruning, quantization, knowledge distillation, and neural architecture search—tailored to the constraints of DSP and MCU platforms.
+
+  \item \textbf{Foundation models and datasets:} 
+  Wearables are naturally suited for collecting large-scale, in-the-wild multi-modal data that captures authentic user–environment coupling.
+  While such datasets are promising for foundation model pretraining, they typically lack detailed annotations. Leveraging unlabeled wearable data to build robust foundation models remains an open challenge.
+  For example, sound source localization suffers from a scarcity of large-scale labeled datasets, yet ear-level wearables can readily collect binaural audio and IMU data in naturalistic settings. Through self-supervised and weakly-supervised learning techniques, future work can develop foundation models that generalize across diverse downstream tasks on wearables, enabling zero-shot or few-shot transfer to novel scenarios.
+
+  \item \textbf{Long-term deployments:} 
+  Extended use of head-mounted wearables not only enables large-scale data collection but also facilitates deep user understanding. Accumulating longitudinal data opens opportunities for personalization, which can substantially improve task-specific performance.
+  Future work should conduct long-term deployments of the proposed systems to assess their robustness under real-world variability—across users, devices, environments, and daily routines. Month-scale field studies can track model drift, user compliance, and social acceptability while evaluating failure modes and recovery strategies.
+  From a broader perspective, it is essential to address the ethical implications of continuous audio sensing and collaborative enhancement on head-mounted wearables, establishing guidelines that balance functionality with user privacy and consent.
 \end{itemize}
 
 

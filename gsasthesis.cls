@@ -173,8 +173,8 @@
   \begin{spacing}{1.2}
   \end{spacing}
   \addcontentsline{toc}{section}{Chinese Abstract}
-  \chapter*{\begin{CJK}{UTF8}{gbsn}摘要\end{CJK}}
-  \begin{CJK}{UTF8}{gbsn}
+  \chapter*{\begin{CJK}{UTF8}{bsmi}摘要\end{CJK}}
+  \begin{CJK}{UTF8}{bsmi}
 }%
 {\end{CJK}\clearpage}
 

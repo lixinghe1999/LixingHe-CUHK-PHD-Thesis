@@ -90,7 +90,7 @@ We further evaluate the perception of real users through a user study in Section
 
 
 Compared with the strong baseline FSN, VibVoice achieves good performance in various cases. 
-Compared with multi-modal baseline SN, whose network design has limited capability to recover speech information as VibVoice outperforms it by a large margin. Besides, as discussed in Section. \ref{subsubsec:related-audio-imu}, the data augmentation of SN does not consider the user-specific bone conduction effects, while VibVoice combines the knowledge from extensive measurements and individual features from the target user.
+Compared with multi-modal baseline SN, whose network design has limited capability to recover speech information as VibVoice outperforms it by a large margin. Besides, the data augmentation of SN does not consider the user-specific bone conduction effects, while VibVoice combines the knowledge from extensive measurements and individual features from the target user.
 
 
 \begin{figure}
@@ -116,7 +116,7 @@ Compared with multi-modal baseline SN, whose network design has limited capabili
         \label{fig:vibvoice_noise_duration_2}
          \end{subfigure}
     %\vspace{-1em}
-    \caption{Imapct of calibration time.}
+    \caption{Impact of calibration time.}
     \label{fig:vibvoice_noise_duration}
     %\vspace{-1em}
 \end{figure}
@@ -157,21 +157,21 @@ Compared with multi-modal baseline SN, whose network design has limited capabili
         \includegraphics[width=1\textwidth]{chapters/vibvoice/figure/noise_level_0.pdf}
         %\vspace{-1.99em}
         \caption{PESQ.}
-        \label{fig:vibvoice_noise_type_0}
+        \label{fig:vibvoice_noise_level_0}
         \end{subfigure}
     \begin{subfigure}{0.32\columnwidth}
         \centering
         \includegraphics[width=1\textwidth]{chapters/vibvoice/figure/noise_level_1.pdf}
         %\vspace{-1.99em}
         \caption{SNR.}
-        \label{fig:vibvoice_noise_type_1}
+        \label{fig:vibvoice_noise_level_1}
          \end{subfigure}
     \begin{subfigure}{0.32\columnwidth}
         \centering
         \includegraphics[width=1\textwidth]{chapters/vibvoice/figure/noise_level_2.pdf}
         %\vspace{-1.99em}
         \caption{LSD.}
-        \label{fig:vibvoice_noise_type_2}
+        \label{fig:vibvoice_noise_level_2}
          \end{subfigure}
     %\vspace{-1em}
     \caption{Impact of noise levels.}
@@ -256,8 +256,8 @@ Compared with multi-modal baseline SN, whose network design has limited capabili
         \includegraphics[width=1\textwidth]{chapters/vibvoice/figure/per_user_1.pdf}
         %\vspace{-1em}
         \caption{SNR.}
-         \end{subfigure}
         \label{fig:vibvoice_per_user_1}
+        \end{subfigure}
     \begin{subfigure}{0.3\columnwidth}
         \centering
         \includegraphics[width=1\textwidth]{chapters/vibvoice/figure/per_user_2.pdf}
@@ -389,7 +389,7 @@ We recruit 35 volunteers to study the real perceived experience of VibVoice.
 We play a few recordings from the dataset described in Section 5.1 to volunteers. The length of each sentence is clipped or padded to 5 seconds.
 The first part is to evaluate the intelligibility of reconstructed speech. The participants are asked to listen to the audio clips enhanced by VibVoice and write down the sentences. We use WER to evaluate the results.
 In the second part of the study, participants listen to two audio clips with the same content and choose the audio with better quality in their perception. This study evaluates whether the reconstructed speech improves the user experience or not.
-We conduct two kinds of comparisons five times. One type is to ask participants to choose between audio enhanced by VibVoice and the original noisy audio. The second kind is to ask participants to choose between audio enhanced by VibVoice and the baseline (i.e., FSN). We use the correct ratio $\frac{P}{P+N}$ to represent the improvement of VibVoice, in which $P$ and $N$ are the numbers of choosing VibVoice and negative versa vice.
+We conduct two kinds of comparisons five times. One type is to ask participants to choose between audio enhanced by VibVoice and the original noisy audio. The second kind is to ask participants to choose between audio enhanced by VibVoice and the baseline (i.e., FSN). We use the correct ratio $\frac{P}{P+N}$ to represent the improvement of VibVoice, in which $P$ and $N$ are the numbers of choosing VibVoice and negative vice versa.
 
 
 \subsection{Study Result}

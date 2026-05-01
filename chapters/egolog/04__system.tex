@@ -152,7 +152,7 @@ Following the IMUCLIP approach \citep{moon2023imu2clip}, we classify IMU data in
 
 \paragraph{Spatial.}
 We leverage spatial information from Sec. \ref{sec:egolog_localization} by applying distinct processing strategies to near-field and far-field audio inputs, guided by tailored prompts. For near-field sounds, we use the prompt: “the <sound event> is happening in the near front of the user, which is likely to be related to human activity.” For far-field sounds, the prompt is: “the <sound event> is happening in the <sound location>.”
-When both near-field and far-field sounds are detected, it is unclear which event is near or far. As a result, we can turn on the distance-based sound separation \citep{chen2024hearable} that seperate the audio into two and perform the sound recognition, respectively. We leave the optimization of the separation in the future work since it is unrelated to the main body of EgoLog.
+When both near-field and far-field sounds are detected, it is unclear which event is near or far. As a result, we can turn on the distance-based sound separation \citep{chen2024hearable} that separate the audio into two and perform the sound recognition, respectively. We leave the optimization of the separation in the future work since it is unrelated to the main body of EgoLog.
 
 
 

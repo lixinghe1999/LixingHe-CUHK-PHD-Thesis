@@ -183,9 +183,9 @@ The results from this live study were consistent with the online listening test,
 The second session of the user study evaluates the performance of CoHear under different compression levels (bandwidths). Different from session one, each participant is assigned multiple audio files in sequence, from low compression rate to high compression rate. They are instructed to identify when they feel the quality is already good for usage. We have five levels of compression (8, 16, 32, 64, 128) in the session, so that the result still lies between 1 and 5. Note that the higher the result is, the better CoHear performs under limited bandwidth. Similarly, we also ask the participants about their feelings about different levels of latency. Each participant is assigned multiple audio files in sequence, with five different levels of latency (10ms, 20ms, 50ms, 100ms, 200ms). They are instructed to identify when they feel the quality is already good for usage. Note that the higher the result is, CoHear is more robust to network latency. As shown in Tab. \ref{tab:evaluation_ratings1}, the majority of participants feel good with level four of compression and latency, which means the performance is preserved under diverse conditions.
 
 \paragraph{Session 3: usability}
-In the last session, we asked the same participants to evaluate whether CoHear's usability in the real world, as shown in Tab. Since we don't change the form factor of headphones but build our system on existing headphones, we skip the question of the wearing experience.
+In the last session, we asked the same participants to evaluate CoHear's usability in real-world settings. Since CoHear is built on existing headphones and does not change the form factor, we omit questions about wearing experience.
 \begin{itemize}
-    \item Do you feel that you can not hear others clearly in a noisy environment?
+    \item Do you feel that you cannot hear others clearly in a noisy environment?
     \item Do you agree that looking at the people you are talking to can let you hear them clearly?
     \item Are you willing to wear earphones when they can improve the conversation clarity?
 \end{itemize}
@@ -252,14 +252,14 @@ The number of participants appears to be closely related to the effectiveness of
         \includegraphics[width=0.75\linewidth]{chapters/cohear/evaluation/room_size_orientation.pdf}
          \vspace{-1em}
         \caption{Orientation errors.}
-        \label{fig:ori_par}
+        \label{fig:ori_room}
     \end{subfigure}%
     \begin{subfigure}{0.48\linewidth}
         \centering
         \includegraphics[width=0.75\linewidth]{chapters/cohear/evaluation/room_size_position.pdf}
          \vspace{-1em}
         \caption{Position errors.}
-        \label{fig:pos_par}
+        \label{fig:pos_room}
     \end{subfigure}%
       \vspace{-1em}
     \caption{Geometric calibration with the size of rooms.}
@@ -362,7 +362,7 @@ To further reduce bandwidth usage, we can rely solely on the speaker embedding w
 \end{figure}
 
 \paragraph{Relay audio quality}
-In the design of CoHear, we utilize relay audio as a condition instead of speaker embedding. This choice emphasizes that the quality of the relay audio is critical for the system's performance, which we assess across four aspects, as illustrated in Fig. \ref{fig:relay_audio_quality}.
+CoHear uses relay audio as a condition instead of relying only on speaker embeddings. This choice makes relay audio quality critical to system performance, which we assess across four aspects, as illustrated in Fig.~\ref{fig:relay_audio_quality}.
 As shown in Fig. \ref{fig:relay_snr}, there is a positive correlation between the SNR of the relay audio and overall performance. This finding indicates that CoHear relies on effective self-voice isolation algorithms, such as VibVoice or ClearBuds \cite{chatterjee2022clearbuds, he2023towards}. Regarding compression quality (Fig. \ref{fig:relay_compress}), we observe that it has only a slight impact on performance, demonstrating that CoHear is resilient to compression effects.
 The remaining two factors are related to wireless transmission. We note that packet loss negatively affects performance (Fig. \ref{fig:relay_packet}), whereas the bit-crush effect stabilizes at 8 bits (Fig. \ref{fig:relay_bit}). This suggests that we can standardize the transmitted bit width to eight bits without compromising performance.
 
@@ -415,7 +415,7 @@ Considering that a conversation can involve multiple participants, we also evalu
 \end{figure}
 
 \paragraph{Bandwidth controller}
-We assess the performance of our experience-based controller as shown in Fig. \ref{fig:controller}. In this comparison, we evaluate it against two naive baselines: one where each stream receives equal bandwidth, and another where the first stream receives the maximum bandwidth while the second stream receives the remaining bandwidth, so on and so forth. During our experiments, we utilized a random number of nodes, random input SNR, and random available bandwidth. The average SNR is displayed in the figure. Our findings indicate that the proposed controller can achieve an improvement of approximately 1 dB without requiring additional bandwidth.
+We assess the performance of the experience-based controller in Fig.~\ref{fig:controller}. The comparison includes two naive baselines: one that assigns equal bandwidth to each stream, and one that allocates maximum bandwidth sequentially until the available bandwidth is exhausted. During the experiments, we sample the number of nodes, input SNR, and available bandwidth randomly. The average SNR is shown in the figure. The controller improves SNR by approximately 1 dB without requiring additional bandwidth.
 
 \paragraph{Cold start time}
 CoHear depends on a sufficient number of observations or utterances to accurately calibrate the locations of participants. This means that there is a "cold start" period during which the system needs time to achieve optimal performance, as indicated by the conversation accuracy discussed in the previous section.

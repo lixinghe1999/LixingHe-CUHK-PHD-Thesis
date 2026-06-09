@@ -13,7 +13,7 @@
     \vspace{-1em}
 \end{figure}
 
-CoHear is a novel network system specifically designed to establish connections based on conversational features, as illustrated in Fig. \ref{fig:system overview}. To achieve this, we define a "conversation network" as the foundation of the system, where individuals participating in the same conversation will experience conversation enhancement.
+CoHear establishes connections based on conversational features, as illustrated in Fig. \ref{fig:system overview}. To achieve this, we define a ``conversation network'' as the foundation of the system, where individuals participating in the same conversation receive conversation enhancement.
 To construct such a network, the first step is to define its basic components: pairings and which participants are considered part of the same conversation. The details of this definition will be discussed in the next subsection.
 Given the definition of the conversation network, the next step is to implement it in the real world using earphones, as shown on the right side of Fig. \ref{fig:system overview}. CoHear employs a two-stage process for conversation modeling. In the first stage, we set up the conversation through acoustic sensing and optimization, and in the second stage, we perform enhancement powered by the network.
 
@@ -50,12 +50,12 @@ Consequently, the conversation network in our current implementation is primaril
 
 \subsection{Node Discovery for Conversation Setup}
 \label{sec:cohear_acoustic}
-Conversation can be depicted through the interaction between speakers; the speaker presents the interest according to the direction of the voice (also the direction of the head). In CoHear, each user is considered as one node, where we reformulate speaker localization as a dynamic node discovery problem in a mobile acoustic network, as shown in Fig. \ref{fig:acoustic}. Specifically, it is necessary to access both the location and identity of the nearby nodes. We represent the location in local coordinates (the receiver as the root) and the identity as the voiceprint, which is an embedding that represents the voice of the speaker.
+Conversation can be modeled through interactions between speakers. In CoHear, each user is treated as a node, and speaker localization is reformulated as dynamic node discovery in a mobile acoustic network, as shown in Fig.~\ref{fig:acoustic}. The system estimates both the location and identity of nearby nodes. Location is represented in the receiver's local coordinate system, and identity is represented by a voiceprint embedding.
 
 While joint estimation of these properties (similar to sound event localization and detection) is theoretically possible, prior work shows such approaches suffer from computational complexity and poor scalability \cite{wang2022nerc}. Instead, we adopt a decoupled two-stage discovery process that separately handles node localization and identity extraction and then fuses the results for network coordination.
 
 \paragraph{Stage one: sound localization}
-As for the sound localization, we extract the cross-channel features as Sec. \ref{sec:cohear_background} and utilize a convolutional recurrent neural network (CRNN) to process them, which consists of multiple convolutional layers, a GRU layer, and the final linear layer to predict the output. 
+For sound localization, we extract the cross-channel features described in Sec.~\ref{sec:cohear_background} and process them with a convolutional recurrent neural network (CRNN). The CRNN consists of multiple convolutional layers, a GRU layer, and a final linear layer.
 Specifically, we convert the multi-channel audio recording ($M \times T$) into multiple pairs of recordings ($N \times 2 \times T$), where $N$ refers to all the possible combinations. Then, we apply a log-mel spectrogram transformation for each channel and calculate GCC between every pair of channels. Lastly, we concatenate every pair of channels with the original log-Mel spectrograms as the final representations. For example, the feature has a shape of $(2+1) \times T \times F$ for two-channel audio recordings, which can be considered as the input to the neural network. As for the output format, we represent the sound source location in a Cartesian coordinate system ($x, y, z$) with a normalized range of one meter radius ($x^2+y^2+z^2 = 1$), where the output dimension of the last linear layer is 3 with a tanh activation. When there is no sound source, the expected $x,y,z$ are set to zero. During inference, we only consider $x^2+y^2+z^2 > 0.5$ as a valid sound source.
 Considering the output frame length is 0.1 seconds, we need to set the downsample ratio of the neural network to match it. Given the hop length of the spectrogram is 20ms, the time-dimension downsampling is set to 5. Consequently, the output format is $3 \times T/5$.
 
@@ -66,13 +66,13 @@ Considering the max number of sources is $n_{max}$, the output of the model is a
 
 
 \paragraph{Stage two: identity extraction}
-After localizing all the sound sources, the next step is to associate the sound location with the identities. Although the speaker identities are accessible with the help of existing tools like Pyannotate \cite{bredin2023pyannote}, which supports overlapping speech and multiple speakers. 
-However, the association between locations and identities can be difficult since they are two independent attributes. Specifically, the location of each person can be permuted randomly without impacting the results.
+After localizing all sound sources, the next step is to associate each sound location with a speaker identity. Existing tools such as Pyannote~\cite{bredin2023pyannote} can estimate speaker identities under overlapping speech and multiple-speaker conditions.
+However, associating locations with identities is difficult because they are estimated as independent attributes. In particular, source locations can be permuted without changing the localization result.
 
 To associate them effectively, we can perform beamforming for each detected sound source and check which speaker's sound is amplified, which brings two subsequent problems: 1) how to perform beamforming with a limited microphone array, and 2) how to determine the identity of the beamformed speech. Although there are existing solutions for them respectively, directly combining them can lead to degradation since they are not co-optimized. 
 For example, the output from beamforming can still contain noise, so that speaker identity extraction may not handle it well.
 
-We propose a joint model to solve both the beamforming and embedding extraction at the same time. Specifically, we keep the beamformer (e.g., delay-and-sum beamformer) the same and reshape the output from \(B \times C \times T \times F\) to \(B \times T \times (F \times C)\) and use a linear projector with layer normalization to predict the d-vector. In addition, the final d-vector is the average over time. Since the output is not audio, we can not use the common loss function for neural beamformer (i.e., scale-invariant signal-noise ratio), but the cosine similarity loss as follows:
+We use a joint model for beamforming and embedding extraction. Specifically, we keep the beamformer (e.g., delay-and-sum beamformer) unchanged, reshape the output from \(B \times C \times T \times F\) to \(B \times T \times (F \times C)\), and use a linear projector with layer normalization to predict the d-vector. The final d-vector is averaged over time. Since the output is not audio, the common neural beamforming loss (i.e., scale-invariant signal-to-noise ratio) is not applicable; we instead use cosine similarity loss:
 \(\text{L}(\mathbf{A}, \mathbf{B}) = 1- \frac{\mathbf{A} \cdot \mathbf{B}}{\|\mathbf{A}\| \|\mathbf{B}\|}\),
 where \textit{A} is an estimated d-vector, and \textit{B} refers to the d-vector from clean speech with the speaker verification model.
 
@@ -96,10 +96,10 @@ This section details our geometric calibration pipeline. First, we describe how 
 
 \paragraph{Observation alignment}
 \label{sec:cohear_sharing}
-The principle of geometric calibration is that one source can be observed by multiple nodes, where the relative position is related to the nodes' positions. Thus, it is important to align the source across nodes.
-It is a trivial task when there is only one sound source, but it becomes complicated with 1) overlapping sound, 2) the sound isn't observed by some nodes. Since we have already extracted the corresponding speaker embedding for each source, we can assign the same identity to the sources with similar embeddings.
+Geometric calibration relies on sources observed by multiple nodes, where each relative position constrains the node positions. The system must therefore align source observations across nodes.
+This alignment is simple with one sound source but becomes difficult when sounds overlap or when some nodes cannot observe a source. Since the corresponding speaker embedding has been extracted for each source, sources with similar embeddings can be assigned the same identity.
 Specifically, for the speakers observed by one user (including itself), we pair all of them with the observations from other users and only keep the ones that have high similarity. The similarity is calculated by the cosine similarity of two embeddings.
-A group of sources with more than 0.8 similarity is considered the same source. We don't make the assumption that one source can be observed by all users.
+A group of sources with more than 0.8 similarity is considered the same source. We do not assume that every source can be observed by all users.
 In practice, every device uploads its observed embeddings from Sec. \ref{sec:cohear_acoustic} to a central server and performs the above matching. Only the source that is observed by at least two nodes are considered as valid ones in the following.
 
 \paragraph{Distance estimation}
@@ -111,7 +111,7 @@ y(t) = h(t) * x(t) + v(t) = h_{e}(t) * x(t) + h_{l}(t) * x(t) + v(t)
 \], where \( v(t) \) corresponds to white sensor noise and \( h(t) \) represents the room impulse response, the symbol \( * \) denotes convolution. However, the performance highly relies on a known environment, so the scalability is not satisfying \cite{krause2021joint, gburrek2021geometry}.
 
 Instead, we propose estimating distance by comparing the sound pressure levels at the transmitter and receiver. In an ideal scenario, the audio attenuation corresponds to the propagation path loss, which is related to distance. To ensure a clean input signal and mitigate the effects of multi-path propagation or overlapping sound sources, we selectively use audio segments containing only a single active source and compute the average sound level from these segments.
-Despite this design, distance estimation errors may still be significant. Therefore, we do not use the estimated distance as a final output. Instead, we utilize it as an input for subsequent geometric calibration, alongside other data.
+Despite this design, distance estimation errors may still be significant. Therefore, we do not use the estimated distance as a final output. Instead, we use it as one input to subsequent geometric calibration.
 
 
 
@@ -127,7 +127,7 @@ According to Sec. \ref{sec:cohear_background}, our network can be considered as 
 
 
 \paragraph{Geometric calibration}
-We perform mobile geometric calibration with the networked earphones, which share a similar principle as other geometric calibrations that minimize a cost that is defined to evaluate how well these converted observations align with the assumed geometry. Among the various algorithms, data set matching is an efficient algorithm for geometric calibration. Our algorithm is based on that of \cite{gburrek2021geometry}; the details of it are out of the scope of this paper.. 
+We perform mobile geometric calibration with networked earphones. The method follows the same principle as other geometric calibration approaches: it minimizes a cost function that measures how well converted observations align with the assumed geometry. Among existing algorithms, dataset matching is an efficient approach for geometric calibration. Our algorithm builds on \cite{gburrek2021geometry}; this chapter focuses on the extensions needed for mobile earphone networks.
 
 Different from the original algorithm, we have a rotation matrix \(R_{k,l}\) and a translation vector \(n_{k,l}\) that are dependent on both the source and the node. As a result, we rewrite the relative locations in the global coordinates:
 \[
@@ -180,19 +180,19 @@ Our neural network already outputs a 3-dimensional vector. We remove the unit ve
 
 
 \paragraph{Problem formulation}
-For each group of nodes participating in the same conversation, the locations, identities (represented by speaker embeddings), and the audio recordings are shared among all members. We utilize this information to adjust the user's hearing (extract conversation) as demonstrated in Fig. \ref{fig:voice_share}.
+For each group of nodes participating in the same conversation, the locations, identities (represented by speaker embeddings), and audio recordings are shared among all members. CoHear uses this information to extract the target conversation, as shown in Fig.~\ref{fig:voice_share}.
 
-Our design goal is to extract a target conversation from a speech mixture under specific conditions. While raw audio provides more fine-grained information than speaker embeddings, it consumes significantly more bandwidth. A naive solution, assuming we have access to a relatively clean audio relay, would be to transmit this audio directly like a video conference. However, this assumption is impractical for two reasons. First, even after noise suppression, we cannot guarantee that the transmitted audio perfectly matches the target speech. Second, the transmission process itself introduces delay, packet loss, and compression artifacts, resulting in a degraded version of the original received audio. Therefore, the core problem we address is how to design a conversation extraction model that can effectively utilize this degraded relay audio.
+The design goal is to extract a target conversation from a speech mixture under specific conditions. Raw audio provides more fine-grained information than speaker embeddings, but it consumes substantially more bandwidth. Directly transmitting relay audio, as in a video conference, is impractical for two reasons. First, even after noise suppression, the transmitted audio may not match the target speech. Second, transmission introduces delay, packet loss, and compression artifacts. The extraction model must therefore use degraded relay audio effectively.
 
 \paragraph{Adaptive audio control}
 Ideally, relay audio should be transmitted at the highest possible quality. However, there will always be a bandwidth bound, particularly with multiple concurrent users. This is a common problem in networking, addressed by algorithms like TCP congestion control.
 Unlike these well-established solutions, CoHear also considers the acoustic noise level, where a higher noise level indicates the need for a larger bandwidth (to provide more information as compensation). 
 To achieve this, we can perform a grid search to maximize the overall conversation quality for all users under a total bandwidth constraint. For each user, we consider the distance as the indicator for conversation quality instead of directly estimating the metric like SNR. Consequently, the search objective is the sum of bandwidth/ distance for all the users within the conversation, where the total bandwidth is constrained. The reason behind our design is the close correlation between pair-to-pair distance and noise level.
 
-Besides the bandwidth, transmission delay is another factor that needs consideration. Specifically, a delayed audio is almost useless even if he audio quality is good since the time-dimension correlation between the time-variant feature and the target speech diminishes, reducing its effectiveness as a reference. 
+Transmission delay is another constraint. Delayed relay audio becomes less useful even when its audio quality is high because temporal correlation between the time-varying feature and the target speech weakens.
 To address this, we propose estimating the transmission delay and disabling the time-variant feature when the latency exceeds a certain threshold. 
-Specifically, we can utilize the GCC technique between the transmitted audio and the noisy speech, identifying the first peak as the delay.
-Note that we don't need to estimate the delay frequently since we assume the delay is relatively stable.
+Specifically, we use GCC between the transmitted audio and the noisy speech, identifying the first peak as the delay.
+We do not need to estimate the delay frequently because it is assumed to be relatively stable.
 In our empirical test, we find that a delay of 50ms is still tolerable for the time-variant feature and set it as the threshold.
 Consequently, under poor network conditions, the system gracefully degrades by relying solely on time-invariant features for target speech extraction.
 It is also important to note that the switch between time-invariant and time-variant features impacts bandwidth control. When audio transmission is not necessary (i.e., when the time-variant feature is disabled), the bandwidth requirement can be reduced accordingly.
@@ -211,7 +211,7 @@ As for the time-variant feature, which also refers to the target speech as the s
 \[
 y = TSE(y_{noisy}, [e_{enrollment}, ....]_{T}, E_{relay}), \quad E_{relay} = Embedder(y_{relay})
 \]. To maintain compatibility with time-invariant features, we include both time-invariant features and time-variant features during the training by setting the features to zero when it is absent. Note that the actual form of the time-invariant feature is not the raw audio; we can further improve the efficiency by only transmitting the feature, and we leave it for future work. 
-Besides, CoHear is expected to work well with multiple conditions (participants). A naive solution is to apply the speech filter multiple times, which is computation-intensive. Instead, we propose an attention mechanism that combines multiple conditions into the intermediate feature as follows: 
+CoHear must also support multiple conditioning sources from multiple participants. A naive solution is to apply the speech filter multiple times, but this is computation-intensive. Instead, we use an attention mechanism that combines multiple conditions into the intermediate feature:
 \(
  X = Attention([X_0, X_1, ...])
 \)

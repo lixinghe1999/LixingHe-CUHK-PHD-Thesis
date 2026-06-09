@@ -1,25 +1,25 @@
 \section{Background}
 \label{sec:cohear_background}
 
-This section lays the technical foundation for CoHear, focusing on acoustic sensing techniques that are important for conversation modeling.
-First, we discuss sound localization, which accurately identifies speaker positions using earphone microphone arrays, providing essential information to create a conversation map.
-Next, we review the Wireless Acoustic Sensor Network (WASN), which facilitates collaborative sensing across multiple devices.
+This section lays the technical foundation for CoHear, focusing on acoustic sensing techniques used for conversation modeling.
+First, it discusses sound localization, which estimates speaker positions from earphone microphone arrays and provides information for constructing a conversation map.
+It then reviews wireless acoustic sensor networks (WASNs), which support collaborative sensing across multiple devices.
 
 
 \subsection{Sound Source Localization}
-Sound source localization is one of the hot topics for multi-channel audio, which enables spatial sensing capability for audio.
+Sound source localization is a core problem in multi-channel audio and enables spatial acoustic sensing.
 Consider a microphone array consisting of $N$ microphones located at known positions $\mathbf{p}_i = (x_i, y_i)$ for $i = 1, 2, \ldots, N$. Let the position of the sound source be denoted by $\mathbf{s} = (x_s, y_s)$.
 The time it takes for the sound to reach the microphone $i$ can be expressed as:
 \(t_{s, i} = \frac{d_{s, i}}{c}, d_{s, i} = \sqrt{(x_s - x_i)^2 + (y_s - y_i)^2}\)
-where $d_{s, i}$ is the distance from the sound source $s$ to microphone $i$, and $c$ is the speed of sound in air. Since the sound source is unknown to the receiver, we can not directly estimate $t_{s, i}$ but calculate the time difference of arrival (TDoA) $t_{s, i} - t_{s, j}$, where $i, j \in (1, N)$. To estimate the TDoA from in-the-wild recording, one common approach is the General Correlation Coefficient (GCC) \cite{knapp1976generalized}, which is computed for each pair of microphones. By finding the peak of GCC, we can estimate the TDoA and calculate the direction of arrival (DoA) by \(DoA = arctan((x_s - x_c)/(y_s - y_c))\), where $x_c$ refers to the center of the microphone array. As shown in the above analysis, the sound localization's performance is heavily reliant on the number of microphones (more microphones, more pairs of microphones, so more TDoA). 
+where $d_{s, i}$ is the distance from sound source $s$ to microphone $i$, and $c$ is the speed of sound in air. Since the source emission time is unknown to the receiver, $t_{s, i}$ cannot be estimated directly. Instead, the system estimates the time difference of arrival (TDoA), $t_{s, i} - t_{s, j}$, where $i, j \in (1, N)$. A common method for estimating TDoA from in-the-wild recordings is the generalized cross-correlation (GCC)~\cite{knapp1976generalized}, which is computed for each microphone pair. The GCC peak estimates the TDoA, which can then be used to calculate the direction of arrival (DoA) as \(DoA = arctan((x_s - x_c)/(y_s - y_c))\), where $x_c$ is the center of the microphone array. This analysis shows why localization performance depends strongly on the number of microphones: more microphones provide more microphone pairs and therefore more TDoA constraints.
 
 Instead of relying on analytical methods, sound source localization can be performed using a deep neural network, as explored in \cite{wang2022nerc}. This deep learning-based approach generally consists of two stages: feature extraction and location estimation.
 In the feature extraction stage, the audio signal is typically converted into a spectrogram representation with dimensions: \(C\times T \times F\), where \(C\) refers to channels, \(T\) refers to time, and \(F\) refers to frequency. These features can be further processed using techniques such as log-melspectrogram conversion, which is applied to each channel individually, or multi-channel methods like GCC \cite{knapp1976generalized} and SALSA-Lite \cite{nguyen2022salsa}.
 In the location estimation stage, the neural network is trained to output the sound source location, which also supports a dynamic number of simultaneous sound sources. For instance, architectures employing multi-track \cite{cao2021improved} or multi-ACCDOA \cite{shimada2022multi} output formats are designed specifically to localize overlapping sound events.
 
-Besides, deep sound localization can extract the rich information embedded in binaural recording (microphones on the ears), which comprises the complex reflection from the human head and body. Specifically, the head-related transfer function (HRTF) can be modeled as:
+Deep sound localization can also use the spatial information embedded in binaural recordings, including reflections from the human head and body. Specifically, the head-related transfer function (HRTF) can be modeled as:
 \(H_{L}(\theta, \phi, f, d) = \frac{Y_{L}(f)}{X(f)}, H_{R}(\theta, \phi, f, d) = \frac{Y_{R}(f)}{X(f)},\) where $H_{L}$ indicates the frequency response for left ear and $H_{R}$ indicates the frequency response for right ear. 
-By leveraging HRTF and deep learning, we can achieve higher accuracy than using a linear two-microphone array. For instance, this approach can partially resolve front-back confusion, a problem that is particularly challenging for conventional two-microphone arrays.
+By using HRTF cues with deep learning, binaural localization can achieve higher accuracy than a linear two-microphone array. For instance, this approach can partially resolve front--back confusion, a problem that is particularly challenging for conventional two-microphone arrays.
 
 
 \subsection{Wireless Acoustic Sensor Network}

@@ -6,15 +6,15 @@
 \begin{figure*}
   \centering
   \includegraphics[width=.85\textwidth]{chapters/vibvoice/figure/overview.pdf}
-  \caption{The overview of \textit{VibVoice} system. We first augment the acceleration data using a large public speech dataset with estimated Bone Conduction Functions. Then, we train a multi-modal DNN for speech reconstruction (e.g., the purple box).}
+  \caption{Overview of the \textit{VibVoice} system. VibVoice augments acceleration data using a large public speech dataset and estimated Bone Conduction Functions, then trains a multimodal DNN for speech reconstruction.}
   \label{fig:vibvoice_overview}
 \end{figure*}
-Motivated by our findings in Section. \ref{sec:vibvoice_measurement}, bone-conducted vibration is a promising complementary sensing modality to microphone recording for speech enhancement under environmental noises. 
-However, the limited sample rate of HMW's accelerometer and diverse frequency responses of bone-conducted vibration introduce challenges for multi-modal speech enhancement. 
+Motivated by the findings in Section~\ref{sec:vibvoice_measurement}, bone-conducted vibration can complement microphone recording for speech enhancement under environmental noise.
+However, the limited sampling rate of HMW accelerometers and the diverse frequency responses of bone-conducted vibration introduce challenges for multimodal speech enhancement.
 On the other hand, although it is possible to adapt existing audio-only DNN-based speech enhancement models \citep{michelsanti2021overview,sun2021ultrase, zhang2021sensing,liu2021wavoice, ozturk2021radiomic} to take both inputs, there is no large dataset with paired acceleration and audio on HMWs available.
 
-We design \textit{VibVoice}, a speech enhancement system for HMWs that leverages both the microphone recording and the speech information from the bone-conducted vibrations.
-Fig. \ref{fig:vibvoice_overview} overviews the design of VibVoice, which contains three components: estimation of Bone Conduction Function, data augmentation, and speech reconstruction network.
+We design \textit{VibVoice}, a speech enhancement system for HMWs that uses both microphone recordings and speech information from bone-conducted vibration.
+Fig. \ref{fig:vibvoice_overview} summarizes the design of VibVoice, which contains three components: Bone Conduction Function estimation, data augmentation, and a speech reconstruction network.
 % The system overview is shown in Fig. \ref{fig:vibvoice_overview}. 
 First, we estimate a set of Bone Conduction Functions using a small paired acceleration-audio dataset collected from volunteers in Section. \ref{sec:vibvoice_function}. 
 We note that this estimation does not resort to black-box deep learning approaches, which require a huge amount of training data. Instead, we take advantage of prior knowledge that a frequency response exists between the acceleration and audio spectrograms. 
@@ -38,9 +38,9 @@ To estimate the Bone Conduction Function, we recruit volunteers and record a fiv
 
 First, we compute the spectrograms $STFT_{acc}$ and $STFT_{mic}$ of $s_{acc}$ and $s_{mic}$ for each window using short-time Fourier transform (STFT), respectively.
 Then, we apply Otsu's method \citep{otsu1979threshold} to $STFT_{acc}$ and $STFT_{mic}$ for automatic image thresholding, and then discard the bins whose value is lower than a threshold to remove outlier noises.
-We note that our thresholding setting can leverage temporal information, which can better diminish the noise than a constant threshold on the frequency or time domains.
+This thresholding setting uses temporal information and suppresses noise more effectively than a constant threshold in the frequency or time domain.
 Furthermore, we perform the pixel-wise division between $STFT_{acc}$ and $STFT_{mic}$ to obtain a response spectrogram, selecting the lower frequency part of the audio spectrogram to align to the acceleration spectrogram. 
-We model the Bone Conduction Function using the Gaussian distribution in the frequency domain since the frequency response (as shown in Fig. \ref{fig:vibvoice_bcf}) has a non-trivial variance due to the complex structure of the head skeleton \citep{chang2016development}. 
+We model the Bone Conduction Function using a Gaussian distribution in the frequency domain because the frequency response (Fig.~\ref{fig:vibvoice_bcf}) has substantial variance due to the complex structure of the skull \citep{chang2016development}.
 In particular, we compute $f=S_{acc}/S_{mic}$ for the corresponding time window in $STFT_{acc}$ and $STFT_{mic}$, respectively. The function $f\sim N(\mu,\sigma^2)$, in which $\mu$ and variance $\sigma$ contribute to the contour and fluctuation of frequency response, respectively.
 We measure $\mu$ and $\sigma$ for each time window to construct the parameter pool of Bone Conduction Functions. 
 
@@ -55,7 +55,7 @@ We measure $\mu$ and $\sigma$ for each time window to construct the parameter po
 \end{figure}
 We develop a data augmentation approach with Bone Conduction Functions described in Section. \ref{sec:vibvoice_function}.
 Note that we cannot apply the inverse Bone Conduction Function to turn the acceleration back to audio due to the significantly limited sample rate of acceleration data. In addition, the frequency band (larger than $500\,\text{Hz}$) has very slim energy, which can cause unreasonable large energy after the inversion.
-We utilize these functions to generate acceleration signals using a large-scale audio dataset, i.e., LibriSpeech \citep{panayotov2015librispeech}. 
+We use these functions to generate acceleration signals from the large-scale LibriSpeech audio dataset~\citep{panayotov2015librispeech}.
 To be specific, for each audio clip, we first select a Bone Conduction Function (i.e., a list of means and variances over different frequencies) from the pool randomly. 
 Then, we restore the frequency response from the Gaussian distribution of given parameters. 
 Lastly, we can augment the audio to synthetic acceleration data by directly multiplying the frequency response. 
@@ -132,7 +132,7 @@ Therefore, we collected another acceleration-audio paired dataset from a differe
 Note that VibVoice does not require any data from the target user either during the Bond Conduction Function estimation or model training.
 All evaluations adopt leave-one-out validation. We pick one user as the testing dataset, while the others are regarded as the training dataset. 
 
-Although the training of VibVoice does not require any data from the target user, one-shot data from the target domain can further improve the overall performance. This data collection can share the recorded data during the setup of HMWs, e.g., the personalized model for calling voice assistants, which incurs no extra overhead to the user. In addition, VibVoice can record data when the user is speaking in a quiet environment. As the data collection doesn't require specific content, our system can unobtrusively record user-specific data during the long-time usage of HMWs and improve the performance of the target user continuously. 
+Although VibVoice does not require target-user data for training, a small amount of target-domain data can further improve performance. Such data can be collected during normal HMW setup, such as voice-assistant personalization, without adding a separate calibration step. VibVoice can also use speech recorded in quiet environments. Because the collection does not require specific content, the system can accumulate user-specific data during long-term HMW use and improve personalization over time.
 
 The fusion decoder uses the STFT Loss \citep{defossez2020real}. We use $y$ and $\hat{y}$ to represent the clean and enhanced signals. The STFT loss can be denoted as follows: 
 \begin{align} 

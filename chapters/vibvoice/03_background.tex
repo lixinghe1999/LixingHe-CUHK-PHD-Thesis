@@ -1,13 +1,13 @@
 \section{Background}
 \label{sec:vibvoice_background}
-In this section, we first develop EarSense, an open-source wearable platform that has a similar setup to current commercial HMWs for data collection in Section. \ref{sec:vibvoice_EarSense}. Then, we exploit the bone-conducted vibrations and the audio signals recorded by EarSense under various settings in Section. \ref{sec:vibvoice_measurement}. Finally, we overview the design of our proposed system in Section. \ref{sec:vibvoice_overview}, introduce Bone Conduction Function and multi-modal network in Section. \ref{sec:vibvoice_bcf} and Section. \ref{sec:vibvoice_network}, respectively.
+This section introduces EarSense, an open-source wearable platform with a sensing setup similar to current commercial HMWs (Section~\ref{sec:vibvoice_EarSense}). It then analyzes bone-conducted vibration and audio signals recorded by EarSense under several settings (Section~\ref{sec:vibvoice_measurement}). Finally, it summarizes the VibVoice design (Section~\ref{sec:vibvoice_overview}) and introduces the Bone Conduction Function and multimodal network (Sections~\ref{sec:vibvoice_bcf} and~\ref{sec:vibvoice_network}).
 
 
 \subsection{EarSense: An Open Source Data Collection Platform for HMWs}
 \label{sec:vibvoice_EarSense}
 
-Most commercial HMWs do not provide APIs to collect raw acceleration data. Recently, Apple provided APIs \citep{CMHeadph3:online} to collect motion data from AirPods earphones at $100\,\text{Hz}$, which is too low for speech recording and doesn't fully utilize commercial IMU.
-Hence, it is desirable to develop a new sensing platform that can: a) collect the acceleration and acoustic data synchronously at a sample rate to recover speech information; b) have direct contact with the user's head like HMWs; c) have compatibility to test with existing commercial devices.
+Most commercial HMWs do not provide APIs to collect raw acceleration data. Apple provides APIs~\citep{CMHeadph3:online} for collecting AirPods motion data at $100\,\text{Hz}$, but this sampling rate is too low for speech-related vibration and does not fully use the commercial IMU.
+We therefore develop a sensing platform that can: a) collect acceleration and acoustic data synchronously at a sample rate suitable for speech information; b) maintain contact with the user's head in a manner similar to HMWs; and c) remain compatible with existing commercial devices.
 \begin{figure}
   \begin{subfigure}{.64\columnwidth}
     \includegraphics[width=\textwidth]{chapters/vibvoice/figure/earsense.eps}
@@ -26,9 +26,9 @@ Hence, it is desirable to develop a new sensing platform that can: a) collect th
 Fig. \ref{fig:vibvoice_earsense} shows the prototype of \textit{EarSense}  \citep{dataset}, a new open-sourced sensing platform that equips a 3D-printed enclosure with an IMU sensor (i.e., Bosch BMI-160 \citep{Inertial63:online}) inserted. EarSense has a flexible design to make it attachable to any commercial HMW device (e.g., AirPods Pro). EarSense captures the same vibration as the testing HMW and has no direct contact with the user's head (shown in Fig. \ref{fig:vibvoice_earsense-head}).
 We connect two EarSenses to a Raspberry Pi (RPi) with a battery for data collection.
 Fig. \ref{fig:vibvoice_earsense-people} shows a volunteer wearing the device on the head to avoid excessive vibrations caused by the connecting wires.
-A Python script on the RPi to control the EarSense(s) through the I2C protocol and store the data for offline processing. 
+A Python script on the RPi controls the EarSense devices through the I2C protocol and stores the data for offline processing.
 We only use the three-axis accelerometer provided by the IMU chip because the gyroscope and magnetometer are less related to the vibration.
-The default sample rate of the microphone and the accelerometer are $16\,\text{kHz}$ and $1.6\,\text{kHz}$, respectively. Since commercial earphones like AirPods Pro doesn't support two-channel audio recording, EarSense records audio in a mono channel.
+The default sample rates of the microphone and accelerometer are $16\,\text{kHz}$ and $1.6\,\text{kHz}$, respectively. Since commercial earphones such as AirPods Pro do not support two-channel audio recording through public APIs, EarSense records audio in a mono channel.
 We apply L2-Norm to the spectrograms of three-axis acceleration to extract the vibration intensity and avoid the impact of wearing position and user's motion.
 
 \subsection{Measurements of Bone-Conducted Vibrations}

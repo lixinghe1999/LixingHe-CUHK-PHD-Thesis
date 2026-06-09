@@ -1,54 +1,52 @@
-\section{Introduction}
+﻿\section{Introduction}
 
 \begin{figure}
     \centering
     \includegraphics[width=0.6\linewidth]{chapters/cohear/figs/illustration.pdf}
     \vspace{-1em}
-    \caption{Conversation group is naturally formed by interaction with humans, CoHear is a collaborative conversation enhancement solution that is driven by the user's intention to talk, automatically find a pal, and deliver clear speech within the same conversation.}
+    \caption{CoHear uses natural conversational interaction to discover conversation partners and enhance speech within the same conversation group.}
     \label{fig:illustration}
     \vspace{-1em}
 \end{figure}
 
-The rising popularity of smart earphones, with approximately 455 million units shipped globally in 2024, marking an 11.2\% year-on-year growth~\cite{patentlyapple2025audio}, frames these devices as a new popular category after smartphones.
-In addition to the original usage of playing music, current earphones offer unprecedented convenience and rich functionalities. For example, recent studies on earphones enable powerful speech enhancement~\cite{chatterjee2022clearbuds, he2023towards, duan2024earse}, speech anti-tampering~\cite{duan2024f2key, hearid}, and recognize fine-grained human activities~\cite{lyu2024earda}. Besides, the head-tracking technology works well to enable spatial audio, which is made possible by motion sensors in earphones \cite{han2023headmon, han2023headsense, lyu2024earda}. Combining the above advantages, we observe that earphones are a promising platform for monitoring human conversation, as they consider both the verbal and non-verbal (head orientation) features.
+Smart earphones have become a widely deployed wearable platform, with approximately 455 million units shipped globally in 2024 and 11.2\% year-on-year growth~\cite{patentlyapple2025audio}.
+Beyond music playback, recent earphone systems support speech enhancement~\cite{chatterjee2022clearbuds, he2023towards, duan2024earse}, speech anti-tampering~\cite{duan2024f2key, hearid}, fine-grained activity recognition~\cite{lyu2024earda}, and spatial audio through IMU-based head tracking~\cite{han2023headmon, han2023headsense, lyu2024earda}. These capabilities make earphones suitable for conversation sensing because they capture both verbal signals and non-verbal cues such as head orientation.
 
 Conversation is an interactive form of communication between two or more people and plays a crucial role in socialization. As illustrated in Fig.~\ref{fig:illustration}, people naturally form separate conversation groups, and ideally, each person wants to focus solely on the members of their own group, regardless of distance or competing voices. The ``cocktail party effect'' \cite{pollack1957cocktail} refers to the human ability to selectively concentrate on a particular voice in noisy environments. However, this perceptual mechanism has limitations. Many individuals experience what is known as ``cocktail party deafness,'' which hinders their ability to follow conversations in crowded settings due to hearing impairments, cognitive overload, or overwhelming background noise \cite{pryse2009companion, cherry1953some}. As a result, clear communication in environments such as conferences, networking events, or guided tours becomes increasingly challenging.
 
 
-To improve hearing during conversations, using earphones as assistive tools presents a promising direction. However, existing works on speech enhancement fall short of our needs, as they do not specifically target conversational contexts. For example, some methods enhance hearing based on sound categories~\cite{veluri2023semantic}, speaker recognition~\cite{veluri2024look}, or listener distance~\cite{chen2024hearable}. Yet, these factors may not accurately capture the dynamics of natural conversation. We cannot assume that all conversations occur within a defined area, which contradicts the assumptions made by SoundBubble~\cite{chen2024hearable}. In contrast, the method proposed in~\cite{chen2024target} is the only one that effectively extracts conversations based on turn-taking dynamics and previously recorded audio. However, it suffers from a major limitation: the reliance on turn-taking events introduces significant delays, rendering it impractical for real-time processing.
+Earphones can therefore serve as assistive tools for conversation listening. However, existing speech enhancement methods do not fully model conversational context. Some methods enhance hearing based on sound categories~\cite{veluri2023semantic}, speaker recognition~\cite{veluri2024look}, or listener distance~\cite{chen2024hearable}, but these cues do not always capture the dynamics of natural conversation. SoundBubble~\cite{chen2024hearable}, for example, assumes a defined spatial region, while real conversations may form across irregular distances and orientations. The method in~\cite{chen2024target} extracts conversations based on turn-taking dynamics and previously recorded audio, but its reliance on turn-taking events introduces delay and limits real-time use.
 
 
-To address the limitations outlined above, we have developed CoHear, a system that leverages multi-device collaboration from a holistic perspective to enhance the conversation. In contrast to most existing research on earphones, which focuses on single-device capabilities~\cite{dong2024rehearsse, he2023towards, duan2024earse}, CoHear acknowledges that conversation is inherently a multi-user activity. By transforming individual earphones into a networked system, our approach integrates the advantages of wearable technology with the strengths of distributed sensor networks.
+To address these limitations, CoHear uses multi-device collaboration for conversation enhancement. In contrast to earphone systems that focus on single-device processing~\cite{dong2024rehearsse, he2023towards, duan2024earse}, CoHear treats conversation as a multi-user activity. It connects individual earphones into a lightweight network and combines wearable sensing with distributed acoustic observations.
 
 
-Our earphone network departs from the conventional assumptions of wireless acoustic sensor networks in two fundamental ways~\cite{gburrek2021geometry}. Traditionally, such networks assume that (1) sound sources appear randomly and independently of sensor node placement, and (2) the sensor nodes themselves remain static. In contrast, our conversation-driven system operates under a reversed premise: the sound sources—human speakers—are co-located with mobile sensor nodes (earphones), and these nodes dynamically organize themselves into conversation groups, as illustrated in Fig.~\ref{fig:illustration}. 
-Consequently, the conversation network is triggered and constructed by the interaction between the user, which can be modeled by either verbal or non-verbal features. Among those features, we observe that the verbal features (i.e., turn-taking) are less stable due to the waiting time and prone to interference; we mainly rely on the non-verbal features (head orientation) to determine the group of conversation.
+The CoHear earphone network departs from the conventional assumptions of wireless acoustic sensor networks in two ways~\cite{gburrek2021geometry}. Traditionally, such networks assume that (1) sound sources appear randomly and independently of sensor node placement, and (2) the sensor nodes themselves remain static. In contrast, the conversation-driven setting has a different structure: the sound sources, i.e., human speakers, are co-located with mobile sensor nodes (earphones), and these nodes dynamically organize themselves into conversation groups, as illustrated in Fig.~\ref{fig:illustration}.
+Consequently, the conversation network is triggered and constructed by interactions among users, which can be modeled through verbal or non-verbal features. Verbal features such as turn-taking are delayed and sensitive to interference, so CoHear primarily uses non-verbal features such as head orientation to infer conversation groups.
 
-To establish the conversation network, we have access to both multi-channel audio and IMU recordings, which enables the detection of nearby speakers. We envision using these observations to estimate speaker locations and subsequently detect conversations based on their relative orientations. Ultimately, by replaying the enhanced speech through noise-canceling earphones, we aim to augment human auditory perception, effectively outperforming the natural cocktail party effect. However, several challenges are associated with implementing this system:
+To establish the conversation network, CoHear uses multi-channel audio and IMU recordings to detect nearby speakers, estimate their locations, and infer conversations from relative orientations. The enhanced speech can then be rendered through noise-canceling earphones. Implementing this system raises three challenges:
 \begin{itemize}
     \item \textbf{Dynamic peer discovery and network formation.} Since conversations occur spontaneously and participants are mobile, the system must continuously identify nearby speakers, localize their positions, and group devices into socially coherent clusters without any fixed infrastructure.
 
-    \item \textbf{Topology estimation and coordination.} 
-    The estimation and observations of a single user may be insufficient to identify conversation participants. Therefore, aggregating the noisy, distributed observations from heterogeneous devices is necessary for establishing a global coordinate system to locate conversations. 
+    \item \textbf{Topology estimation and coordination.}
+    The estimation and observations of a single user may be insufficient to identify conversation participants. Therefore, aggregating the noisy, distributed observations from heterogeneous devices is necessary for establishing a global coordinate system to locate conversations.
 
-    \item \textbf{Conversation enhancement.} 
-    Even a well-established conversation network may not be directly useful to users without additional features. A key enhancement, enabled by the earphone platform, is the targeted extraction of conversation-level speech. The central challenge, which remains unaddressed, is how to effectively select and leverage conversation conditions (e.g., speaker embeddings) from the network to achieve this.
+    \item \textbf{Conversation enhancement.}
+    Even a well-established conversation network may not be directly useful to users without additional processing. The earphone platform enables targeted extraction of conversation-level speech, but the system must select and use conversation conditions, such as speaker embeddings, from the network under latency and bandwidth constraints.
 \end{itemize}
 
 
 
-To address these challenges, we introduce three key contributions of CoHear:
+To address these challenges, CoHear makes three contributions:
 \begin{enumerate}
-    \item \textbf{A conversation network for earphones.} 
-    We design a novel network that leverages the sensing capabilities of earphones to model conversation groups, forming a mobile, infrastructure-free conversation network.The network includes two key components:
+    \item \textbf{A conversation network for earphones.}
+    CoHear designs a conversation network that uses earphone sensing to model conversation groups without fixed infrastructure. The network includes two components:
     (i) a node discovery module that detects nearby speakers along with their locations and speaker embeddings, as described in Sec. \ref{sec:cohear_acoustic}. This task is divided into two parts: sound source localization and speaker embedding extraction. A joint identity extraction model is used to integrate these two elements.
     (ii) a geometric calibration pipeline that estimates the global network topology using the output from node discovery, as detailed in Sec. \ref{sec:cohear_geometric}. This pipeline matches sound sources identified across different devices, calculates the distances between them, and uses this information for geometric calibration.
 
-    \item \textbf{A robust target conversation enhancement.}
-    Based on the network structure, we develop a conversation enhancement module that is designed for low latency and high bandwidth efficiency. This module uses peer-relayed audio as conditioning signals and is robust to network delays, packet loss, and compression artifacts. We propose an adaptive model that can utilize different types of conditioning features, including both time-invariant and time-variant features. An audio control module manages the transition between these feature types and regulates the corresponding bandwidth usage.
+    \item \textbf{Bandwidth-aware target conversation enhancement.}
+    Based on the network structure, CoHear develops a conversation enhancement module for low latency and bandwidth efficiency. This module uses peer-relayed audio as conditioning signals and remains effective under network delays, packet loss, and compression artifacts. An adaptive model uses both time-invariant and time-varying conditioning features, while an audio control module manages feature selection and bandwidth usage.
 
     \item \textbf{A practical implementation with real-world validation.}
-    We implement CoHear on earphones equipped with microphones and IMUs, which is practical to be implemented on a commercial device.
-    We evaluate its performance through real-world experiments, simulation data, and user studies. Our system achieves over 90\% accuracy in conversation group formation, improves speech clarity by up to 8.8 dB SNR over state-of-the-art baselines, and demonstrates real-time performance (RTF > 1) on mobile devices. An adaptive bandwidth controller further improves performance under constrained conditions.
-    We will open-source our project after publication.
+    CoHear is implemented on earphones equipped with microphones and IMUs. Real-world experiments, simulations, and user studies show over 90\% accuracy in conversation group formation, up to 8.8 dB SNR improvement over representative baselines, and real-time performance (RTF > 1) on mobile devices. An adaptive bandwidth controller further improves performance under constrained conditions.
 \end{enumerate}

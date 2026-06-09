@@ -1,76 +1,109 @@
 \section{Background}
-Understanding human behavior requires more than observing a person in isolation; it also requires modeling how the person and the surrounding environment affect each other. Traditional sensing methods often analyze speech, activity, or physiological signals without explicitly modeling environmental context. In practice, however, behavior depends heavily on context: speech propagates through both tissue and air, activities happen in specific settings, and social interaction unfolds in shared acoustic and spatial environments. In this thesis, I refer to this relationship as \textit{user--environment coupling}. Although it is central to human-centric sensing, it remains underexplored. Modeling this coupling can support applications such as personalized healthcare, intelligent assistants, and context-aware devices that move beyond explicit user input toward a better understanding of everyday situations.
 
-To formalize this perspective, this thesis introduces three coupling dimensions that correspond to our three systems: \textit{differentiation}, \textit{fusion}, and \textit{collaboration}. Each dimension reflects a distinct physical relationship between users and their environments and introduces a different sensing challenge.
+Wearable sensing is often framed as a problem of observing the user: recognizing speech, inferring activity, or estimating physiological state from sensor data. In daily life, however, the user is rarely observed in isolation. Speech travels through both the body and the air. Activities happen in particular places and routines. Conversations unfold among people who share the same acoustic and spatial environment. The signals captured by a wearable device therefore contain both user-generated information and environmental context.
 
-Let $A_{user}$ denote the user state and $A_{env}$ the environmental state. Although $A_{user}$ is not directly observable, it produces user-specific signals $S_{user}$ embedded in the sensor observation $S_{mix}$. The environment contributes $S_{env}$, yielding:
+Head-mounted wearables make this relationship especially visible. Devices such as earphones, headphones, AR/VR headsets, and smart glasses are worn close to the mouth, ears, eyes, and head. This placement gives them access to signals that are difficult to capture from wrist-worn or pocket-carried devices: the wearer's speech before it fully disperses into the room, head motion and orientation during interaction, bone-conducted vibration, binaural acoustic cues, and first-person contextual information. At the same time, head-mounted wearables sit directly at the boundary between the user and the environment. Their sensors do not receive a clean user-only stream. They receive mixtures shaped by the user's body, surrounding sound, nearby people, and the social setting.
+
+This thesis focuses on earphone-class devices within the broader class of head-mounted wearables, including commodity earphones and earphone-form-factor research prototypes. Earphones are widely used, socially accepted, and already equipped with microphones and inertial measurement units (IMUs). Compared with camera-based devices, they can support continuous sensing while avoiding many of the privacy concerns associated with always-on visual recording. Compared with other wearables, their ear-level placement is unusually well matched to speech, hearing, activity logging, and conversation understanding.
+
+This thesis refers to the above relationship as \textit{user--environment coupling}. The term describes the structured relationship between a user's internal or behavioral state and the surrounding physical, contextual, and social environment as observed by wearable sensors. This coupling is often treated as a source of interference: background noise corrupts speech, ambient sound confuses activity recognition, and overlapping speakers make conversations hard to follow. The central argument of this thesis is different. User--environment coupling should not be treated solely as interference. When modeled explicitly, it can become useful structure for robust, privacy-preserving sensing.
+
+The three projects in this thesis are connected by one design question: given a coupled wearable observation, what should the system separate, what should it keep as context, and what should it share across users? To answer this question, the thesis organizes user--environment coupling into three complementary dimensions: \textit{differentiation}, \textit{fusion}, and \textit{collaboration}.
+
+\begin{table}[t]
+    \centering
+    \caption{Three dimensions of user--environment coupling studied in this thesis.}
+    \label{tab:coupling_dimensions}
+    \begin{tabular}{lll}
+        \toprule
+        Dimension & Design principle & System \\
+        \midrule
+        Differentiation & Separate user-specific signals from mixtures & VibVoice \\
+        Fusion & Use environmental context to interpret user behavior & EgoLog \\
+        Collaboration & Use social structure and peer devices for sensing & CoHear \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Let $A_u$ denote the user state and $A_e$ denote the environmental state. A head-mounted wearable does not observe either state directly. Instead, its sensors produce an observation $Y$ from user-generated signals, environmental signals, device placement, and sensing noise:
 \[
-S_{mix} = g(S_{user}, S_{env}),
+Y = g(\phi_u(A_u), \phi_e(A_e), P, \epsilon),
 \]
-where $g$ denotes the physical mixing process captured by sensors.
+where $\phi_u(\cdot)$ and $\phi_e(\cdot)$ map latent states to observable signals, $P$ denotes device placement and sensing configuration, and $\epsilon$ denotes noise. This abstraction separates the physical observation process from task-specific inference: the same coupled observation can support different sensing objectives depending on what the system needs to estimate.
+For example, in VibVoice, $A_u$ includes the wearer's speech production and $A_e$ includes background speech or noise; in EgoLog, $A_u$ includes the user's activity and $A_e$ includes the surrounding scenario; in CoHear, $A_e$ also includes nearby speakers and their conversational relations.
 
-The first problem is \textit{differentiation}: recovering $S_{user}$ from the mixture. Direct recovery via $S_{user} = f(S_{mix})$ is generally ill-posed because user and environmental components are entangled. A common strategy is to introduce a reference signal $S_{ref}$ derived from a user-proximate sensor and condition the separation model:
+The first dimension is \textit{differentiation}: estimating a user-specific target $T_u$ from a mixed observation. Directly estimating $T_u = f(Y)$ is generally ill-posed because user and environmental components are entangled. A common strategy is to introduce a user-proximate reference signal $R_u$ and condition the estimator:
 \[
-S_{user} = f(S_{mix}, S_{ref}).
+\hat{T}_u = f_d(Y, R_u).
 \]
-$S_{ref}$ may be weakly informative (e.g., a noise estimate) or strongly correlated with user speech. In Chapter~\ref{ch:vibvoice}, we use bone-conduction signals as a user-specific $S_{ref}$ to extract target speech from noisy audio.
+In Chapter~\ref{ch:vibvoice}, VibVoice uses bone-conducted vibration as $R_u$ to extract the wearer's speech from noisy microphone audio.
 
-User--environment interaction is not only something to suppress; it can also provide useful structure. We denote this shared structure by $A_{fusion}$, a function of both $A_{user}$ and $A_{env}$. In general, $A_{fusion}$ is not equivalent to $S_{mix}$, but rather to an informative subset of it. Estimating $A_{fusion}$ supports signal separation and downstream inference tasks where context matters. In Chapter~\ref{ch:egolog}, we model contextual coupling between activity and scene to derive $A_{fusion}$ and improve fine-grained activity logging.
-
-The final dimension is \textit{collaboration}, where multiple users coexist in the same environment. In this setting, each user is coupled with both the environment and other users. We represent this social structure as $A_{social}$ and incorporate it into the separation objective:
+The second dimension is \textit{fusion}: estimating a task-relevant joint representation $Z_{u,e}$ from both user and environmental evidence. In this case, the goal is not simply to remove environmental information. The system should keep the parts of the environment that explain the user's behavior:
 \[
-S_{user} = f(S_{mix}, S_{ref}, A_{fusion}, A_{social}).
+\hat{Z}_{u,e} = f_f(Y_{audio}, Y_{motion}, C_e),
 \]
-In Chapter~\ref{ch:cohear}, we estimate $A_{social}$ from conversation structure among participants and use it to extract target speech from overlapping speakers.
+where $C_e$ denotes inferred environmental context. A task-specific head then maps this joint representation to an activity or log output:
+\[
+\hat{T}_{u,e} = q(\hat{Z}_{u,e}).
+\]
+Here, $C_e$ is an intermediate estimate derived from the coupled observation, rather than an externally provided label. In Chapter~\ref{ch:egolog}, EgoLog uses selective differentiation to separate near-field user sounds from far-field ambient sounds, then fuses activity cues with scenario context for fine-grained daily logging.
 
-In summary, the three dimensions share one principle: robust sensing depends on isolating user-specific signals while also using structured coupling as complementary information. This thesis shows that jointly modeling acoustic, contextual, and social coupling can turn commodity earphones into practical and privacy-preserving sensing platforms.
+The third dimension is \textit{collaboration}: estimating a user target with help from other users' devices and the social structure among them. For user $i$, the system can use the local observation $Y_i$, observations from peer devices $\{Y_j\}_{j \in \mathcal{N}_i}$, and a social or conversation graph $G_s$:
+\[
+\hat{T}_i = f_c(Y_i, \{Y_j\}_{j \in \mathcal{N}_i}, G_s).
+\]
+In Chapter~\ref{ch:cohear}, CoHear estimates $G_s$ from conversation structure and peer-device observations, then uses it to enhance target conversation speech in overlapping-speaker scenes.
+
+Together, these three dimensions form the core design of the thesis. VibVoice shows how to isolate the user from acoustic interference. EgoLog shows how to turn environment from noise into context. CoHear shows how to turn other users from interference into collaborators. Across the three systems, the broader principle is the same: robust wearable sensing depends on modeling the structure of coupling around the user, rather than assuming that the user can be sensed independently from the world.
 
 \section{Challenges}
 
-This formulation leaves a practical question: how should we define $g$? From an information engineering perspective, the answer is constrained by the sensors available to us. The sensors, their capabilities, and the corresponding system design ultimately determine which applications are feasible.
-In this thesis, we focus on the sensing capabilities of head-mounted wearables, with particular emphasis on earphones. This choice is motivated by the ubiquity of earphones and their unique sensing capabilities, which enable rich user-environment coupling. With an estimated 455 million units shipped globally in 2024 (11.2\% year-on-year growth)~\cite{counterpoint2024hearables}, earphones have emerged as a dominant wearable platform and a natural substrate for user–environment coupling research.
-Earphones sit at the physical intersection of user-generated signals and environmental stimuli: their microphones capture both the wearer's voice and the surrounding soundscape, while their inertial measurement units (IMUs) sense body movement.
-Smart glasses add visual sensing, which is powerful but often raises stronger privacy concerns and consumes more power. To keep the thesis focused on widely available commercial devices, we therefore concentrate on two sensing modalities that already exist on many wearables: audio and motion.
+This conceptual frame leads to a practical question: what aspects of user--environment coupling can be observed with practical head-mounted wearables? The answer depends on sensor placement, sensing modality, device constraints, and the target application.
 
-Audio and motion sensing are complementary but individually limited. Audio is easily corrupted by environmental interference, whereas motion signals provide only indirect evidence of user behavior and are sensitive to noise and inter-user variability. The core challenge is to use this cross-modal complementarity without amplifying the weaknesses of either modality. That requires robust fusion algorithms, principled signal processing, and scalable data-collection pipelines that generalize to real-world settings.
+This thesis focuses on earphones because they provide a practical substrate for studying this question. With an estimated 455 million units shipped globally in 2024 (11.2\% year-on-year growth)~\cite{counterpoint2024hearables}, earphones have become one of the most widely deployed wearable platforms. They also sit at the physical intersection of the user and the surrounding environment: their microphones capture both the wearer's voice and the ambient soundscape, while their IMUs capture head motion and body-induced vibration.
 
-From the perspective of \textit{differentiation}, the central problem is identifying an informative reference signal $S_{ref}$ for user-specific separation. The bone-conduction channel measured by the IMU accelerometer offers a user-exclusive cue that is largely immune to ambient noise. However, the accelerometers used in our experiments sample at 1.6~kHz, which is higher than typical consumer earphone IMUs (often 100--200~Hz). At those lower rates, the IMU data cannot capture the full speech bandwidth (up to 3.4~kHz). By contrast, air-conduction microphones preserve full-band acoustic content but cannot reliably isolate the wearer's speech from competing speakers and background noise.
+Audio and motion sensing are complementary but individually limited. Audio contains rich semantic and acoustic information, but it is easily corrupted by environmental interference and competing speakers. Motion sensing is more user-proximate and less exposed to ambient noise, but it provides indirect evidence of behavior and is sensitive to sensor placement, sampling rate, and inter-user variability. The core technical challenge is to combine these modalities without amplifying the weaknesses of either one.
 
-For \textit{fusion}, the challenge is to model structured coupling between user and environment to improve downstream inference. In activity recognition, this requires integrating short-term action cues with long-term contextual information across modalities and timescales. Yet weak alignment between audio and IMU representations often degrades cross-modal learning, and naïve fusion can underperform unimodal approaches~\cite{huang2022modality}. This challenge is compounded by the long-tail distribution of fine-grained activities in the wild, which makes fully supervised solutions data-intensive.
+For \textit{differentiation}, the main challenge is finding an informative reference signal $R_u$ for user-specific separation. Bone-conducted vibration measured by an earphone IMU is useful because it is strongly tied to the wearer and largely immune to ambient noise. However, the accelerometers used in our experiments sample at 1.6~kHz, which is higher than typical consumer earphone IMUs and still below the bandwidth of standard speech audio. Microphone signals preserve full-band acoustic content but cannot reliably isolate the wearer's voice from background noise and competing speakers. VibVoice addresses this gap by using bone-conducted vibration as a clean but bandwidth-limited reference for reconstructing full-band speech from noisy audio.
 
-Finally, \textit{collaboration} requires structured modeling of interactions among multiple users. In social acoustic scenes, extracting a target conversation from overlapping speech requires source separation as well as conversation-level modeling of turn-taking and group membership, which single-device, speaker-agnostic methods cannot provide. Peer devices must be discovered and coordinated without dedicated infrastructure, their heterogeneous observations must be fused into a shared reference frame, and relayed audio must remain usable despite bandwidth, latency, and compression constraints.
+For \textit{fusion}, the challenge is to decide when environmental information is noise and when it is context. Fine-grained activity logging requires both short-term action cues and longer-term scenario understanding. Yet audio and IMU features are weakly aligned, and na\"ive multimodal fusion can underperform unimodal models~\cite{huang2022modality}. The problem is harder in the wild, where daily activities follow a long-tail distribution and fully supervised training data is expensive to collect. EgoLog addresses this challenge by combining motion-compensated sound localization, contrastive cross-modal learning, and scenario-aware activity inference.
+
+For \textit{collaboration}, the challenge is to model multiple users who share the same acoustic environment. In crowded social scenes, a single device may not have enough information to identify conversation partners or separate the target conversation from overlapping speech. Peer devices must be discovered and coordinated without fixed infrastructure, their observations must be mapped into a shared reference frame, and relayed audio must remain useful under bandwidth, latency, and compression constraints. CoHear addresses these constraints through conversation-driven peer discovery, topology estimation, and bandwidth-aware target conversation enhancement.
 
 \section{Contributions}
 
 The main contributions of this thesis are as follows:
 \begin{enumerate}
-    \item \textbf{A formal definition of user--environment coupling for wearable sensing.} We define user--environment coupling as the structured relationship between user state and environmental state in sensor observations, and organize it into three dimensions: \textit{differentiation}, \textit{fusion}, and \textit{collaboration}. This definition gives a single framework for separating user-specific signals from mixed observations while still using contextual and social structure when it is informative.
+    \item \textbf{A user--environment coupling framework for wearable sensing.} This thesis defines user--environment coupling as the structured relationship between user state and environmental state in wearable sensor observations. It organizes this relationship into three dimensions: \textit{differentiation}, \textit{fusion}, and \textit{collaboration}. This framework provides a single design language for the three systems in the thesis: separate user-specific signals when coupling causes interference, fuse environmental structure when it provides context, and use social coupling when multiple users can cooperate.
 
-    \item \textbf{VibVoice: Bone conduction-based speech enhancement.} We design and implement a multimodal speech enhancement method that combines air-conduction audio with bone-conducted vibration from earphone IMUs. The model is a lightweight two-branch encoder-decoder network that reconstructs clean speech under noise and competing speakers.
+    \item \textbf{VibVoice: Bone conduction-based speech enhancement.} We design and implement a multimodal speech enhancement method that combines air-conduction audio with bone-conducted vibration from earphone IMUs. The model is a lightweight two-branch encoder--decoder network that reconstructs clean speech under noise and competing speakers.
 
     To reduce dependence on paired training data, we measure bone-conduction transfer characteristics and derive impulse responses for cross-modal data augmentation. Experiments show up to 21\% PESQ gain and 26\% SNR gain over representative baselines, using 72$\times$ less paired data. In a user study with 35 participants, 87\% preferred VibVoice to the baseline. On mobile devices, inference is 4$\times$ to 31$\times$ faster.
 
-    \item \textbf{EgoLog: Fine-grained activity logging with commercial earphones.} We build a fine-grained activity logging method using microphones and IMUs already available in commercial earphones. EgoLog records user activities together with contextual scenarios, and tackles sparse sensing, weak cross-modal alignment, and environmental interference in everyday settings.
+    \item \textbf{EgoLog: Fine-grained activity logging with head-mounted and mobile wearables.} We build a fine-grained activity logging method using microphones and IMUs available on common mobile and wearable devices, with head-mounted wearables as the core day-long deployment target. EgoLog models both user activity and environmental scenario, and uses selective differentiation to reduce interference from non-user sounds.
 
-    The method combines context-aware scenario recognition, spatial-aware activity detection, and attribute-level integration based on expert knowledge. EgoLog supports zero-shot logging across up to 41 categories and improves F1 score by 38\% over strong baselines, including ImageBind-LLM.
+    The method combines motion-compensated sound localization, context-aware scenario recognition, and scenario-aware activity inference. EgoLog supports zero-shot logging across up to 41 categories and improves F1 score by 38\% over strong baselines, including ImageBind-LLM.
 
     \item \textbf{CoHear: Collaborative conversation-level speech enhancement.} We develop a collaborative speech enhancement method for multi-user conversation settings. CoHear jointly models participants in shared acoustic scenes and extracts target conversation speech from overlapping mixtures.
 
-    CoHear includes a conversation-driven network protocol for infrastructure-free coordination (i.e., without requiring a base station or centralized server) among mobile earphones and an extraction model that uses relay audio under bandwidth constraints. Real-world experiments and simulations show over 90\% group formation accuracy, up to 8.8 dB speech-quality improvement over representative baselines, and real-time mobile performance. A user study with 20 participants further confirms usability and effectiveness.
+    CoHear includes a conversation-driven network protocol for infrastructure-free coordination among mobile earphones and an extraction model that uses relay audio under bandwidth constraints. Real-world experiments and simulations show over 90\% group formation accuracy, up to 8.8 dB speech-quality improvement over representative baselines, and real-time mobile performance. A user study with 20 participants further confirms usability and effectiveness.
 \end{enumerate}
 
 \section{Thesis Outline}
-This thesis is structured as follows. The research is organized into two primary domains: audio and activity.
 
-\textbf{Chapter \ref{ch:related}} reviews related work and foundational sensing models relevant to all projects in the thesis. Rather than following the structure of any single paper, it is organized from a broader perspective, covering speech and conversation enhancement, human activity recognition, and acoustic sensing systems.
+The thesis is organized around the coupling framework rather than around three isolated projects. It spans speech enhancement, activity logging, and conversation enhancement, all using head-mounted wearables as the sensing platform.
 
-\textbf{Chapter \ref{ch:background}} introduces the technical background needed for the later chapters. It reviews sensors commonly found in head-mounted wearables, such as microphones, inertial measurement units (IMUs), speakers, and biometric sensors. It also covers the core algorithms used in user--environment sensing, including speech enhancement, activity recognition, and acoustic sensing. A measurement study is included to illustrate the key concepts and practical challenges.
+\textbf{Chapter \ref{ch:related}} reviews related work and foundational sensing models relevant to all projects in the thesis. It covers speech and conversation enhancement, human activity recognition, and acoustic sensing systems.
 
-The following three chapters present the main applications built on user--environment coupling with earphones as the sensing platform. Each chapter generally includes an introduction, a related work section, a system design, and an evaluation. Some chapters also include project-specific background or user studies.
+\textbf{Chapter \ref{ch:background}} introduces the technical background needed for the later chapters. It reviews sensors commonly found in head-mounted wearables, such as microphones, inertial measurement units (IMUs), speakers, and biometric sensors. It also covers core algorithms used in user--environment sensing, including speech enhancement, activity recognition, and acoustic sensing. Project-specific measurement studies are presented in the corresponding system chapters.
+
+The following three chapters present the main systems built on user--environment coupling:
 \begin{enumerate}
-    \item \textbf{Chapter \ref{ch:vibvoice}} presents our first application, VibVoice, which utilizes motion sensors in earphones to capture bone-conducted vibrations for speech enhancement. By leveraging this unique sensing modality, the system effectively isolates user speech from environmental noise.
-    \item \textbf{Chapter \ref{ch:egolog}} introduces our second application, EgoLog, which leverages complementary multi-modal sensing features in earphones to achieve fine-grained activity recognition that is robust to external interference. The system generates detailed activity logs by understanding both user actions and contextual scenarios.
-    \item \textbf{Chapter \ref{ch:cohear}} presents our third application, CoHear, the first collaborative speech enhancement system for conversation-level processing. The system constructs a conversation network to automatically identify and isolate individual conversations among multiple users wearing earphones.
+    \item \textbf{Chapter \ref{ch:vibvoice}} presents VibVoice, which uses bone-conducted vibration from earphone IMUs as a user-specific reference for speech enhancement. This chapter corresponds to the \textit{differentiation} dimension.
+    \item \textbf{Chapter \ref{ch:egolog}} presents EgoLog, which combines activity cues and environmental scenario information for fine-grained daily logging. This chapter corresponds to the \textit{fusion} dimension.
+    \item \textbf{Chapter \ref{ch:cohear}} presents CoHear, which builds an infrastructure-free multi-earphone conversation network for collaborative speech enhancement. This chapter corresponds to the \textit{collaboration} dimension.
 \end{enumerate}
 
-The chapters are largely self-contained and can be read independently. Some material is adapted from the corresponding published papers.
+\textbf{Chapter \ref{ch:conclusion}} concludes the thesis and discusses future directions, including unified wearable sensing models, long-term deployment, efficient on-device computation, and privacy-preserving human feedback.
+
+Some material is adapted from the corresponding published papers.

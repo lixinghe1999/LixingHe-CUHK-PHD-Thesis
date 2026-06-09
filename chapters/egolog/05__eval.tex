@@ -24,7 +24,7 @@ Ego4D \citep{grauman2022ego4d} is a large-scale dataset collected by various bra
 Considering Ego4D is the most diverse and large-scale dataset, we set it as the default dataset.
 
 \paragraph{EgoADL:}
-EgoADL \citep{sun2024multimodal} is also a large-scale dataset collected in the real world with Android smartphones, including Wi-Fi, audio, and IMU data. In this paper, we exclude Wi-Fi data for fair comparison. We perform a similar clustering for the 221 classes of actions in the dataset.
+EgoADL \citep{sun2024multimodal} is also a large-scale dataset collected in the real world with Android smartphones, including Wi-Fi, audio, and IMU data. We exclude Wi-Fi data for a fair comparison and perform similar clustering for the 221 action classes in the dataset.
 
 \paragraph{SAMOSA:}
 SAMOSA \citep{mollyn2022samosa} is a relatively small-scale dataset collected by an Android smartwatch (i.e., Fossil Gen 5), including audio and IMU. There are 26 activities in total.
@@ -38,7 +38,7 @@ For the walking activity, where the relative position changes continuously, we u
 
 
 \subsubsection{Baselines}
-We adopt the following evaluation metrics in this paper. For the multi-label classification (i.e., scenario and spatial), we use the multi-label F1-Score: $2*TP/(2*TP+FP+FN)$. For the single-label classification (i.e., activity), we use the accuracy as the metric.
+We use the following evaluation metrics. For multi-label classification (i.e., scenario and spatial classification), we use multi-label F1 score: $2*TP/(2*TP+FP+FN)$. For single-label classification (i.e., activity recognition), we use accuracy.
 
 To evaluate our approach, EgoLog, we have selected different baselines for activity recognition and scenario recognition, respectively. Specifically, we consider SAMoSA \citep{mollyn2022samosa} and Imagebind \citep{girdhar2023imagebind} as our baselines for activity recognition, which are conventional supervised multi-modal model that accepts both audio and IMU. For the scenario recognition, both of the above baselines with larger data duration are considered. To ensure a fair comparison, all of them are fine-tuned with the same data.
 
@@ -287,7 +287,7 @@ ineffective for others. We assess personalized models across a group of users an
 % \vspace{-0.5em}
 % \end{table}
 
-To evaluate the benefits of EgoLog from a user perspective, we conducted a study where volunteers provided subjective ratings of the system's outputs. Recall that our goal is to provide users with a daily log that comprehensively summarizes and represents their activities through two complementary types of output: scenarios and activities. 
+To evaluate EgoLog from a user perspective, we conducted a study in which volunteers provided subjective ratings of the system outputs. The goal is to provide users with a daily log that summarizes their activities through two complementary outputs: scenarios and activities.
 Our final solution integrates both outputs: the daily log displays two rows, with the first row showing scenario information and the second row presenting activity data. Since scenarios are recognized every 30 seconds, the output can contain errors or inconsistencies, even within the same scenario. To mitigate this, we represent each scenario using the normalized probability calculated from the most recent 10 minutes of data. 
 For activities, due to the larger volume of data, we present the results using a bar chart with activity names labeled at the bottom.
 Users were asked to rate the outputs based on three criteria: Correctness, Information-richness, and User-friendliness. To assess correctness, they were provided with ground-truth data in the same format. The average ratings (on a scale of 1-min to 5-max) for the three dimensions were 4.5, 4.0, and 4.5, respectively.

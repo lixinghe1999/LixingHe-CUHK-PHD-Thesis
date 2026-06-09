@@ -25,14 +25,14 @@ In Section~\ref{sec:egolog_har}, we integrate the scenario information into the 
     \label{fig:egolog_scenario-recog}
 \end{figure}
 
-The results of our measurement study indicate that recognizing a large number of activities using IMU or audio data with an end-to-end model is challenging.
-Therefore, we propose a scenario recognition approach to provide a prior information that can assist in activity recognition (as detailed in Section \ref{sec:egolog_har}). Additionally, scenario recognition itself is valuable for gaining a better understanding of daily logs.
+The measurement study indicates that recognizing many activities using IMU or audio data with an end-to-end model is difficult.
+EgoLog therefore uses scenario recognition to provide prior information for activity recognition (Section~\ref{sec:egolog_har}). Scenario recognition also provides a useful high-level summary for daily logs.
 As previously discussed, a scenario can be considered as a long-duration activity composed of multiple correlated sub-activities. To achieve accurate recognition, it is essential to develop an improved method for temporal analysis.
 The pipeline is illustrated in Fig.~\ref{fig:egolog_scenario-recog}.
 
 
 \subsubsection{Problem analysis}
-The audio and IMU data represent their own characteristics and different advantages. As a result, the pretrained encoders tailored for these modalities are unique and fine-tuned for particular objectives. This variation suggests that simply merging the output from these encoders might not produce the optimal outcomes, as corroborated in Sec.~\ref{sec:egolog_measurement}. Thus, it is crucial to thoughtfully integrate these diverse modalities to fully leverage their collective advantages.
+Audio and IMU data have different properties and advantages. Their pretrained encoders are therefore optimized for different objectives. Simply merging their outputs may not produce the best results, as shown in Sec.~\ref{sec:egolog_measurement}; effective fusion must account for the heterogeneity of the two modalities.
 
 We aim to tackle scenario recognition, which refers to identifying high-level human activities over an extended period (over 30 seconds). As detailed in Sec.~\ref{sec:egolog_measurement}, current pre-trained encoders already hold some scenario-level information, although they still fall short of ideal performance. A straightforward approach involves training a classification model using a dataset annotated with scenarios in an end-to-end fashion. Nonetheless, we have identified two persisting challenges: (1) the end-to-end model may struggle to generalize across different input lengths. (2) The performance might be inferior if scenarios are not included in the training data. Therefore, we propose training a new encoder for two modalities to obtain scenario-level features from brief time windows, which will then be applied in a secondary scenario recognition phase.
 
@@ -55,7 +55,7 @@ L = cross\_entropy\_loss(logits, label, axis=0).
 \subsubsection{Scenario recognition}
 Assuming we extract the features from $Audio_e$ and $IMU_e$ by contrastive learning, they may not immediately convey the scenario as previously noted. We observe that a robust example in which both modalities relate to the scenario will exhibit a strong similarity between $Audio_e$ and $IMU_e$. This high similarity indicates that both modalities are effectively mapped into the same feature space, highlighting their importance as key features.
 Conversely, low similarity suggests that the two modalities have not been successfully integrated into a unified representation of the scenario. Ideally, we would only keep frames with high similarity. However, the dynamics of execution can be problematic, introducing instability. Furthermore, it is difficult to set a definitive threshold to classify all frames below it as "useless."
-Given the inherently weak correlation between audio and IMU, examples with high similarity may be rare. Therefore, it is important to leverage as much information as possible from the available data.
+Given the inherently weak correlation between audio and IMU, examples with high similarity may be rare. The model therefore needs to use as much information as possible from the available data.
 To address this problem, we propose extending the key features along the temporal dimension. We integrate a sequence model—either an LSTM or a transformer—to compile features over time (as shown in the right section of Fig.~\ref{fig:egolog_scenario-recog}).
 This two-stage architecture enables the model to capture both short-term and long-term dependencies within the features, thereby improving the accurate recognition of extended scenarios. Finally, a linear layer followed by a sigmoid activation function is used to predict the probability for each scenario.
 
@@ -77,19 +77,19 @@ As illustrated in Sec. \ref{sec:egolog_measurement}, it is not enough to use sou
 \subsubsection{Sound localization}
 The location of sound can be estimated by a multi-channel microphone array. 
 Specifically, the time of arrival of the sound source for one microphone is: \(t_i = \frac{\sqrt{(x_s - x_i)^2 + (y_s - y_i)^2}}{c}\), where the location of microphones $\mathbf{p}_i = (x_i, y_i)$, $i = 1, \ldots, N$, and a sound source at $\mathbf{s} = (x_s, y_s)$.
-Since we are not aware of the start time of the sound source, we can only obtain the Time Difference of Arrival (TDoA) between two microphones like $i$ and $j$ instead. Considering there are only two microphones for binaural earables, we can only have one equation that is less accurate and can't solve front-back confusion.
+Since the start time of the sound source is unknown, the system can only obtain the time difference of arrival (TDoA) between two microphones, such as $i$ and $j$. With only two microphones on binaural earables, this yields a single equation, which is insufficient to resolve front--back confusion reliably.
 
 Building on the work of SELDNet \citep{adavanne2018sound} and DeepEar \citep{yang2022deepear}, we propose a neural network-based binaural localization. Overall, our model performs an 8-class classification, distinguishing between four directions (front, left, right, back) and two distance categories (near and far). The binaural audio input, is converted to two log-Mel spectrograms and generalized cross-correlation coefficients of spectrograms, combined along the channel dimension to form spatial features with shape \( B \times 3 \times T \times 64 \), where \( B \) is the batch size and \( T \) is the number of frames. We process the audio feature with three convolutional layers, transforming it to (B, 128, T/5, 64). Then it is followed by a GRU layer, multi-head attention (resulting in B, 128, T/5, 64), and a linear layer that outputs (B, T/5, C).
 
 
 \subsubsection{Movement compensation}
 
-As illustrated in the motivation study, user movement can be leveraged to enhance spatial understanding. While similar concepts have been implemented in prior works such as \citep{zhu2021localizing, seo2022ross}, these approaches require either explicit user gestures or a fully controllable robot. In contrast, our proposed EgoLog operates without relying on predefined gestures or manual intervention, as it utilizes natural, unintentional body movements that occur in daily life.
+As illustrated in the motivation study, user movement can improve spatial understanding. Similar ideas have been used in prior work~\citep{zhu2021localizing, seo2022ross}, but these approaches require either explicit user gestures or a fully controllable robot. EgoLog instead uses natural, unintentional body movements that occur in daily life.
 
 To realize this, we introduce an end-to-end method where IMU data—structured as (B, 6, T) and comprising both accelerometer and gyroscope measurements—is processed through two transformer layers. This module outputs a representation of shape (B, 384, T), which is then passed through a linear layer to produce an output of size (B, T/5, C). The resulting features are subsequently concatenated with the output from the GRU module.
 The overall model performs an 8-class classification (C=8), distinguishing between four spatial directions (front, left, right, back) and two distance categories (near and far).
 
-In the scope of EgoLog, we can not assume that only one sound source exists. Instead, we may encounter the case where there are multiple sound sources overlapping. Since both sound localization and audio recognition can be multi-label, the problem becomes an association confusion, and we will discuss how to leverage the information in a later section.
+EgoLog cannot assume that only one sound source exists. Multiple sound sources may overlap, and both sound localization and audio recognition can be multi-label. This creates an association problem, which is addressed in a later section.
 
 \subsection{Scenario-aware Activity Recognition}
 \label{sec:egolog_har}
@@ -107,7 +107,7 @@ The methods outlined in Sec. \ref{sec:egolog_scenario} and \ref{sec:egolog_local
 
 Our proposed multi-modal network consists of two main components: unimodal backbones and a fusion module. The unimodal backbones include separate feature extractors that gather features from each input modality. The fusion module is designed to combine and aggregate these features from the unimodal backbones, resulting in a fused output that denotes the activity of the user. Although the design described above shows promise, it shares similar input and output characteristics with those presented in Section \ref{sec:egolog_measurement}, which has already been validated. As a result, it may not perform well in human activity recognition due to a lack of multi-modal correlation.
 
-There are two common approaches for fusing modalities: either use a multi-layer perceptron to process the concatenated representations of different modalities, or utilize a Transformer-based fusion module that processes a series of tokens from various modalities \citep{gabeur2020multi}. We have chosen the transformer-based fusion design because it can easily scale to accommodate any number of input tokens through attention mechanisms. 
+There are two common approaches for fusing modalities: using a multi-layer perceptron to process concatenated representations, or using a Transformer-based fusion module that processes a sequence of tokens from different modalities~\citep{gabeur2020multi}. EgoLog uses the Transformer-based design because attention can scale to a variable number of input tokens.
 This flexibility is particularly important, as our multi-modal model needs to handle data with a varying number of modalities (more than only audio and IMU) for the task. Specifically, suppose the scenario information is a feature with the same dimension as other modalities, the transformer module can easily integrate it.
 The final output of the fusion module is calculated by averaging the output tokens, rather than relying on the CLS token. The formulation of the token for one modality $Z_m$ is below:
 \[
@@ -136,10 +136,10 @@ Next, we extend the multi-modal model that can handle not only the audio and IMU
 \end{figure}
 
 
-As discussed in Section \ref{sec:egolog_measurement}, LLMs may be suboptimal for direct activity recognition. However, we posit they are well-suited for higher-level scenario recognition, as longer data sequences provide a richer information base. This aligns with the findings in Section \ref{sec:egolog_scenario}, where longer sequences also benefit multi-modal fusion—a property we expect to transfer effectively to LLM reasoning. As illustrated in Fig. \ref{fig:egolog_llm_reasoning}, our approach involves formatting sensor data (five seconds window) into text and using tailored prompts to guide an LLM in scenario recognition. The LLM's output can further refine local scenario predictions. It is important to note that all LLM processing is performed on the cloud, ensuring that EgoLog remains a lightweight mobile system.
+As discussed in Section~\ref{sec:egolog_measurement}, LLMs may be suboptimal for direct activity recognition. They are better suited to higher-level scenario recognition, where longer data sequences provide richer context. This is consistent with Section~\ref{sec:egolog_scenario}, where longer sequences also benefit multimodal fusion. As illustrated in Fig.~\ref{fig:egolog_llm_reasoning}, EgoLog formats five-second sensor windows as text and uses tailored prompts to guide LLM-based scenario recognition. The LLM output can then refine local scenario predictions. All LLM processing is performed in the cloud so that the local EgoLog model remains lightweight.
  
 \subsubsection{Prompt design}
-Existing studies primarily leverage the reasoning capabilities of LLMs on text-like data. This subsection introduces the fusion of multi-modal signals from audio and motion sensors for LLM-based reasoning in EgoLog, as illustrated in Fig. \ref{fig:egolog_llm_reasoning}. Instead of re-training the LLM or adding an adapter, we focus on designing a specialized prompt to inject these multi-modal contexts. Specifically, we construct a demonstration within the prompt to guide the LLM in reasoning with such sensor data.
+Existing studies primarily use LLM reasoning on text-like data. This subsection introduces how EgoLog converts multimodal audio and motion signals into prompts for LLM-based scenario reasoning, as illustrated in Fig.~\ref{fig:egolog_llm_reasoning}. Instead of retraining the LLM or adding an adapter, EgoLog uses a specialized prompt with demonstrations that describe how to reason over sensor-derived context.
 The prompt is structured as follows: “You are an expert in human activity analysis. You will receive audio and IMU recognition results, including extra information on potential scenarios. Using this information, reason and refine the person’s scenario. The scenario must be one of the following categories: [List of categories]. Your output must be a single line containing just one word or phrase.”
 This prompt, along with the formatted input data as shown below, is fed to the LLM.
 
@@ -151,7 +151,7 @@ Since the classifier's label set is based on the AudioSet ontology, the defined 
 Following the IMUCLIP approach \citep{moon2023imu2clip}, we classify IMU data into four activities: walking, moving, standing up, and sitting down. While previous works have demonstrated the ability to recognize more fine-grained activities using IMU data, their generalization capabilities remain questionable due to reliance on scenario-constrained datasets.
 
 \paragraph{Spatial.}
-We leverage spatial information from Sec. \ref{sec:egolog_localization} by applying distinct processing strategies to near-field and far-field audio inputs, guided by tailored prompts. For near-field sounds, we use the prompt: “the <sound event> is happening in the near front of the user, which is likely to be related to human activity.” For far-field sounds, the prompt is: “the <sound event> is happening in the <sound location>.”
+EgoLog uses spatial information from Sec.~\ref{sec:egolog_localization} by applying different processing strategies to near-field and far-field audio inputs. For near-field sounds, the prompt states that the sound event occurs near the front of the user and is likely related to human activity. For far-field sounds, the prompt states that the sound event occurs at the estimated sound location.
 When both near-field and far-field sounds are detected, it is unclear which event is near or far. As a result, we can turn on the distance-based sound separation \citep{chen2024hearable} that separate the audio into two and perform the sound recognition, respectively. We leave the optimization of the separation in the future work since it is unrelated to the main body of EgoLog.
 
 
@@ -161,7 +161,7 @@ When both near-field and far-field sounds are detected, it is unclear which even
 
 We define an upstream and downstream collaboration paradigm where the edge device seeks assistance from a cloud-based LLM, rather than naively querying the response.
 
-For the upstream path, we leverage the superior scenario recognition capabilities of LLMs, especially for out-of-domain data. The scenario estimated by the edge device can be treated as a noisy reference, providing valuable preliminary information for the LLM. We integrate this estimation, along with its confidence score, into the prompt supplied to the LLM. 
+For the upstream path, EgoLog uses the scenario recognition capability of LLMs, especially for out-of-domain data. The scenario estimated by the edge device is treated as a noisy reference that provides preliminary information to the LLM. The prompt includes this estimate and its confidence score.
 Specifically, the estimated scenarios are added to the prompt, augmented by the text: "the preliminary scenario estimation is <scenario, confidence>."
 However, frequent queries to the cloud service raise concerns about cost, privacy, and latency. Ideally, all modules of EgoLog should be executable on a mobile device if the performance is sufficient. Consequently, we propose a collaborative framework that strategically uses the cloud LLM to enhance the local model. Specifically, a confidence threshold (0.5) is set for the local scenario recognition model. A cloud query is triggered only when the local model's confidence is low.
 

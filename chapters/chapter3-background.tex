@@ -19,8 +19,8 @@ Modern head-mounted wearables integrate multiple sensors, but not all are equall
 \toprule
 Sensor & Samplerate & Bandwidth & Power & Role \\
 \midrule
-Microphone & 16--48~kHz & 20~Hz--20~kHz & $\sim$1--10~mW & Primary acoustic sensing (Ch.~\ref{ch:vibvoice}) \\
-IMU (accel.) & 100--1600~Hz & 0--800~Hz & $\sim$0.5~mW & Bone-conduction vibration (Ch.~\ref{ch:vibvoice}); motion (Ch.~\ref{ch:egolog}) \\
+Microphone & 16--48~kHz & 20~Hz--20~kHz & $\sim$1--10~mW & Acoustic mixtures for speech enhancement, activity context, and conversation sensing (Ch.~\ref{ch:vibvoice}--\ref{ch:cohear}) \\
+IMU (accel.) & 100--1600~Hz & 0--800~Hz & $\sim$0.5~mW & Bone-conduction vibration (Ch.~\ref{ch:vibvoice}); motion and head orientation (Ch.~\ref{ch:egolog}--\ref{ch:cohear}) \\
 Camera & 30--60~fps & --- & 100--500~mW & Out of scope (privacy, power) \\
 Speaker & --- & 20~Hz--20~kHz & 10--100~mW & Active sensing (secondary) \\
 Biometric & --- & --- & $\sim$1~mW & Out of scope \\
@@ -29,7 +29,7 @@ Biometric & --- & --- & $\sim$1~mW & Out of scope \\
 \end{table}
 
 \noindent\textbf{Microphone.}
-Microphones on head-mounted wearables are typically small, omnidirectional MEMS elements. Their compact form factor limits sensitivity and frequency response compared to professional-grade equipment, but their placement near the ear canal captures both the wearer's voice (via tissue and air conduction) and the ambient soundscape. Throughout this thesis, the microphone provides the primary acoustic observation $S_{mix}$.
+Microphones on head-mounted wearables are typically small, omnidirectional MEMS elements. Their compact form factor limits sensitivity and frequency response compared to professional-grade equipment, but their placement near the ear canal captures both the wearer's voice (via tissue and air conduction) and the ambient soundscape. Throughout this thesis, the microphone provides the primary acoustic component of the coupled observation $Y$.
 
 \noindent\textbf{IMU.}
 Inertial measurement units (IMUs) on wearables include accelerometers and gyroscopes. For this thesis, the accelerometer is the more critical sensor: it captures bone-conducted vibrations produced by the wearer's own speech, providing a user-exclusive signal that is largely immune to ambient noise. However, the sampling rate of commodity IMUs (100--200~Hz in consumer earphones) limits speech bandwidth. In our experiments, we use a higher-rate IMU (1.6~kHz) to explore the potential of this modality. The accelerometer also captures body motion for activity recognition (Chapter~\ref{ch:egolog}).
@@ -39,11 +39,11 @@ Cameras offer rich visual context but raise privacy and power concerns; we there
 
 \section{Core Algorithms}
 
-We now formalize the algorithmic framework using the notation from Chapter~1. Let $S_{user}$ denote the user-specific signal of interest (e.g., speech or motion), $S_{env}$ the environmental contribution, and $S_{mix}$ the mixed sensor observation:
+Chapter~1 introduced the general observation model $Y = g(\phi_u(A_u), \phi_e(A_e), P, \epsilon)$, where the wearable observation depends on user state, environmental state, device placement, and sensing noise. In this chapter, we use simplified task-specific notation for the core algorithms. For acoustic enhancement, let $S_{user}$ denote the user-specific speech signal, $S_{env}$ the environmental acoustic contribution, and $S_{mix}$ the microphone mixture:
 \[
 S_{mix} = g(S_{user}, S_{env}),
 \]
-where $g$ captures the physical mixing process. Recovery of $S_{user}$ is the central technical challenge, addressed through the three coupling dimensions.
+where $S_{mix}$ is the acoustic special case of $Y$. This notation is used only to describe signal-processing components; the broader user--environment coupling framework remains the one defined in Chapter~1.
 
 \subsection{Sound Enhancement and Separation}
 

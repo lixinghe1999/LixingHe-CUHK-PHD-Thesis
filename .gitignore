@@ -4,3 +4,4 @@ VibVoice___MobiSys23
 *.aux
 *.bbl
 *.gz
+.codex*

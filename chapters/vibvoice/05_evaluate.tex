@@ -68,9 +68,8 @@ VibVoice gets a more significant margin than FSN, whose performance is  2.15 for
 This aligns with our expectation since VibVoice uses bone-conducted vibration that is not affected by air transmission.
 
 %\vspace{0.5em}
-\noindent\textbf{Variances among users}.
-Speech and bone-conducted vibration can differ across users due to vocal features, head skull shapes, body fat, etc.
-Fig. \ref{fig:vibvoice_per_user} shows the performance of VibVoice across 15 users. VibVoice shows stable and significantly better performance in PESQ compared to baseline and comparable performance in SNR.
+\noindent\textbf{Generalization to unseen users}.
+Bone-conduction transfer characteristics vary with anatomy and device coupling. Fig. \ref{fig:vibvoice_per_user} reports results for the 15 held-out users under leave-one-user-out validation. VibVoice consistently improves PESQ over the audio-only baseline and achieves comparable SNR without using recordings or Bone Conduction Functions from the test user.
 
 %\vspace{0.5em}
 \noindent\textbf{Sensing location}.
@@ -328,7 +327,7 @@ Second, we remove the data augmentation based on Bone Conduction Function. The p
 Third, the Bone Conduction Function is modeled by only the mean, while the variance is zero. The performance drops 0.2 in PESQ, 0.4 in SNR, and 0.5 for LSD, indicating that our Gaussian approximation is close to the nature of the Bone Conduction Function.
 
 \noindent\textbf{Lower sample rate}.
-The frequency response in Fig. \ref{fig:vibvoice_bcf} shows that the speech information from above 600 Hz is very limited. Hence, we evaluate the performance of VibVoice with a lower sample rate by downsampling the acceleration data to 1200 Hz, 800 Hz, and 400 Hz. The results show that VibVoice is robust to various sample rates, which consume less power in processing and communication. When the sample rate is 800 Hz, the output's PESQ only degrades $10\%$.
+EarSense samples acceleration at $1.6\,\text{kHz}$, above the rates exposed by many consumer earphones. We emulate lower IMU bandwidths by low-pass filtering and downsampling the signal to 1200, 800, and 400 Hz. Relative to $1.6\,\text{kHz}$, PESQ decreases from 2.60 to 2.47, 2.45, and 2.40; SNR decreases from 15.6 dB to 14.4, 14.3, and 14.2 dB. Lower bandwidth truncates the Bone Conduction Function and removes speech harmonics from both measured and augmented vibration, weakening the reference signal. These results test bandwidth reduction, not commodity-IMU noise, quantization, mounting, or proprietary filtering.
 
 \subsection{On-Site Evaluation}
 In the following, we conduct extensive experiments to validate the performance of VibVoice with ongoing noise in the wild. The volunteers are asked to read the same content as the experiments in Section. \ref{sec:vibvoice_overall_eval}. Apart from the environmental noises, we use a smartphone (i.e., Huawei P30) to play recorded speech and ask a volunteer to speak one meter away as the interference. The speech content of the competing speaker is irrelevant to the target speech. We collect 10 minutes of data with about 3dB SNR at each test location.

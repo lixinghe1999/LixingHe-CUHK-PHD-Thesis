@@ -126,11 +126,7 @@ After obtaining the enhanced spectrogram from the multi-modal decoder, the last 
 
 \subsubsection{\textbf{Model Training}}
 \label{sec:vibvoice_training}
-We generate a pool of Bone Conduction Functions by performing cubic interpolation on existing functions from our dataset. We use Gaussian distribution to alleviate our model's overfitting and improve the generalizability among users. In addition, we augment the data with Gaussian distribution based on each frequency band to preserve the low-pass features.
-Thus, the limited Bone Conduction Functions can augment a large acceleration-audio dataset from an existing public dataset with diverse features. This dataset can extract the basic features of multiple modalities, but it is not enough for deployment because of the difference between the target user and our pool of Bone Conduction Functions. 
-Therefore, we collected another acceleration-audio paired dataset from a different group of volunteers to train the model, which is also used to evaluate VibVoice's performance. 
-Note that VibVoice does not require any data from the target user either during the Bond Conduction Function estimation or model training.
-All evaluations adopt leave-one-out validation. We pick one user as the testing dataset, while the others are regarded as the training dataset. 
+We generate a pool of Bone Conduction Functions by interpolating the measured functions and sampling a Gaussian distribution in each frequency band. This preserves their low-pass characteristics and anatomical variation while reducing overfitting. The eight participants used to construct this pool are disjoint from the 15 participants used for training and evaluation. We use leave-one-user-out validation on the latter group, so the held-out user contributes no data to function estimation, augmentation, or model training.
 
 Although VibVoice does not require target-user data for training, a small amount of target-domain data can further improve performance. Such data can be collected during normal HMW setup, such as voice-assistant personalization, without adding a separate calibration step. VibVoice can also use speech recorded in quiet environments. Because the collection does not require specific content, the system can accumulate user-specific data during long-term HMW use and improve personalization over time.
 
@@ -138,7 +134,7 @@ The fusion decoder uses the STFT Loss \citep{defossez2020real}. We use $y$ and $
 \begin{align} 
 \label{math:stft_loss}
 \begin{split}
-    L_{stft}(y, \hat{y}) &= L_{sc}(y, \hat{y}) + L_{mag}(y, \hat{y}),
+    L_{\mathrm{STFT}}(y, \hat{y}) &= L_{sc}(y, \hat{y}) + L_{mag}(y, \hat{y}),
     \\
     L_{sc}(y, \hat{y}) &= \frac{||STFT(y)| - |STFT(\hat{y})||_{F}}{||STFT(y)||_{F}},
     \\
@@ -151,7 +147,7 @@ We use Mean Square Error (MSE) as the training loss for the auxiliary decoder. T
 \begin{align} 
 \label{math:overall_loss}
 \begin{split}
-    L(y, \hat{y}) &= L_{stft}(y, \hat{y}) + |y_{lowband} - \hat{y}_{lowband}|_{2} \times \lambda,
+    L(y, \hat{y}) &= L_{\mathrm{STFT}}(y, \hat{y}) + |y_{lowband} - \hat{y}_{lowband}|_{2} \times \lambda,
 \end{split}
 \end{align}
 which is the joint loss function that covers both fusion and auxiliary decoder. We set $\lambda$ to 0.05 to balance the scales of two losses.

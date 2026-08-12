@@ -4,9 +4,11 @@ Wearable sensing is often framed as a problem of observing the user: recognizing
 
 Head-mounted wearables make this relationship especially visible. Devices such as earphones, headphones, AR/VR headsets, and smart glasses are worn close to the mouth, ears, eyes, and head. This placement gives them access to signals that are difficult to capture from wrist-worn or pocket-carried devices: the wearer's speech before it fully disperses into the room, head motion and orientation during interaction, bone-conducted vibration, binaural acoustic cues, and first-person contextual information. At the same time, head-mounted wearables sit directly at the boundary between the user and the environment. Their sensors do not receive a clean user-only stream. They receive mixtures shaped by the user's body, surrounding sound, nearby people, and the social setting.
 
-This thesis focuses on earphone-class devices within the broader class of head-mounted wearables, including commodity earphones and earphone-form-factor research prototypes. Earphones are widely used, socially accepted, and already equipped with microphones and inertial measurement units (IMUs). Compared with camera-based devices, they can support continuous sensing while avoiding many of the privacy concerns associated with always-on visual recording. Compared with other wearables, their ear-level placement is unusually well matched to speech, hearing, activity logging, and conversation understanding.
+Throughout this thesis, I use \textit{head-mounted wearables (HMWs)} as the umbrella term for devices worn on the head, including earables, headsets, and smart glasses. \textit{Earables} denotes the ear-worn subset, including earphones and earphone-class prototypes; \textit{mobile devices} denotes companion smartphones and other non-head-mounted platforms. I use HMWs when referring to the shared platform and earables only when the ear-worn form factor matters.
 
-This thesis refers to the above relationship as \textit{user--environment coupling}. The term describes the structured relationship between a user's internal or behavioral state and the surrounding physical, contextual, and social environment as observed by wearable sensors. This coupling is often treated as a source of interference: background noise corrupts speech, ambient sound confuses activity recognition, and overlapping speakers make conversations hard to follow. The central argument of this thesis is different. User--environment coupling should not be treated solely as interference. When modeled explicitly, it can become useful structure for robust, privacy-preserving sensing.
+This thesis focuses on earables within the broader class of HMWs, including commodity earphones and earphone-form-factor research prototypes. Earphones are widely used, socially accepted, and already equipped with microphones and inertial measurement units (IMUs). Compared with camera-based devices, they can support continuous sensing while avoiding many of the privacy concerns associated with always-on visual recording. Compared with other wearables, their ear-level placement is unusually well matched to speech, hearing, activity logging, and conversation understanding.
+
+This thesis refers to the above relationship as \textit{user--environment coupling}. The term describes the structured relationship between a user's internal or behavioral state and the surrounding physical, contextual, and social environment as observed by wearable sensors. This coupling is often treated as a source of interference: background noise corrupts speech, ambient sound confuses activity recognition, and overlapping speakers make conversations hard to follow. The central argument of this thesis is different. User--environment coupling should not be treated solely as interference. When modeled explicitly, it can become useful structure for robust, camera-free sensing with lower visual privacy exposure.
 
 The three projects in this thesis are connected by one design question: given a coupled wearable observation, what should the system separate, what should it keep as context, and what should it share across users? To answer this question, the thesis organizes user--environment coupling into three complementary dimensions: \textit{differentiation}, \textit{fusion}, and \textit{collaboration}.
 
@@ -58,7 +60,7 @@ Together, these three dimensions form the core design of the thesis. VibVoice sh
 
 \section{Challenges}
 
-This conceptual frame leads to a practical question: what aspects of user--environment coupling can be observed with practical head-mounted wearables? The answer depends on sensor placement, sensing modality, device constraints, and the target application.
+This conceptual frame leads to a practical question: what aspects of user--environment coupling can be observed with practical HMWs? The answer depends on sensor placement, sensing modality, device constraints, and the target application.
 
 This thesis focuses on earphones because they provide a practical substrate for studying this question. With an estimated 455 million units shipped globally in 2024 (11.2\% year-on-year growth)~\cite{counterpoint2024hearables}, earphones have become one of the most widely deployed wearable platforms. They also sit at the physical intersection of the user and the surrounding environment: their microphones capture both the wearer's voice and the ambient soundscape, while their IMUs capture head motion and body-induced vibration.
 
@@ -80,7 +82,7 @@ The main contributions of this thesis are as follows:
 
     To reduce dependence on paired training data, we measure bone-conduction transfer characteristics and derive impulse responses for cross-modal data augmentation. Experiments show up to 21\% PESQ gain and 26\% SNR gain over representative baselines, using 72$\times$ less paired data. In a user study with 35 participants, 87\% preferred VibVoice to the baseline. On mobile devices, inference is 4$\times$ to 31$\times$ faster.
 
-    \item \textbf{EgoLog: Fine-grained activity logging with head-mounted and mobile wearables.} We build a fine-grained activity logging method using microphones and IMUs available on common mobile and wearable devices, with head-mounted wearables as the core day-long deployment target. EgoLog models both user activity and environmental scenario, and uses selective differentiation to reduce interference from non-user sounds.
+    \item \textbf{EgoLog: Fine-grained activity logging with HMWs and mobile devices.} We build a fine-grained activity logging method using microphones and IMUs available on common mobile devices and HMWs, with HMWs as the core day-long deployment target. EgoLog models both user activity and environmental scenario, and uses selective differentiation to reduce interference from non-user sounds.
 
     The method combines motion-compensated sound localization, context-aware scenario recognition, and scenario-aware activity inference. EgoLog supports zero-shot logging across up to 41 categories and improves F1 score by 38\% over strong baselines, including ImageBind-LLM.
 
@@ -91,11 +93,11 @@ The main contributions of this thesis are as follows:
 
 \section{Thesis Outline}
 
-The thesis is organized around the coupling framework rather than around three isolated projects. It spans speech enhancement, activity logging, and conversation enhancement, all using head-mounted wearables as the sensing platform.
+The thesis is organized around the coupling framework rather than around three isolated projects. It spans speech enhancement, activity logging, and conversation enhancement, all using HMWs as the shared sensing platform.
 
 \textbf{Chapter \ref{ch:related}} reviews related work and foundational sensing models relevant to all projects in the thesis. It covers speech and conversation enhancement, human activity recognition, and acoustic sensing systems.
 
-\textbf{Chapter \ref{ch:background}} introduces the technical background needed for the later chapters. It reviews sensors commonly found in head-mounted wearables, such as microphones, inertial measurement units (IMUs), speakers, and biometric sensors. It also covers core algorithms used in user--environment sensing, including speech enhancement, activity recognition, and acoustic sensing. Project-specific measurement studies are presented in the corresponding system chapters.
+\textbf{Chapter \ref{ch:background}} introduces the technical background needed for the later chapters. It reviews sensors commonly found in HMWs, such as microphones, inertial measurement units (IMUs), speakers, and biometric sensors. It also covers core algorithms used in user--environment sensing, including speech enhancement, activity recognition, and acoustic sensing. Project-specific measurement studies are presented in the corresponding system chapters.
 
 The following three chapters present the main systems built on user--environment coupling:
 \begin{enumerate}
@@ -104,6 +106,6 @@ The following three chapters present the main systems built on user--environment
     \item \textbf{Chapter \ref{ch:cohear}} presents CoHear, which builds an infrastructure-free multi-earphone conversation network for collaborative speech enhancement. This chapter corresponds to the \textit{collaboration} dimension.
 \end{enumerate}
 
-\textbf{Chapter \ref{ch:conclusion}} concludes the thesis and discusses future directions, including unified wearable sensing models, long-term deployment, efficient on-device computation, and privacy-preserving human feedback.
+\textbf{Chapter \ref{ch:conclusion}} concludes the thesis and discusses future directions, including unified wearable sensing models, long-term deployment, efficient on-device computation, and privacy-conscious human feedback.
 
 Some material is adapted from the corresponding published papers.

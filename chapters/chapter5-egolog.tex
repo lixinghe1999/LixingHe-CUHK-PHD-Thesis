@@ -1,4 +1,4 @@
-This chapter presents EgoLog, a mobile sensing framework for daily logging with audio and motion sensors. EgoLog can run on several mobile and wearable form factors, while the thesis emphasizes head-mounted wearables because they are suitable for day-long use and provide stable egocentric audio--motion observations. EgoLog selectively separates user-generated and environmental signals, then fuses activity cues with scenario context to achieve robust recognition in the wild.
+This chapter presents EgoLog, a mobile sensing framework for daily logging with audio and motion sensors. It instantiates the \textit{fusion} dimension of user--environment coupling: EgoLog combines activity cues from HMWs with environmental scenario context, using companion mobile devices when needed. The thesis emphasizes HMWs because they are suitable for day-long use and provide stable egocentric audio--motion observations. EgoLog selectively separates user-generated and environmental signals, then fuses them with scenario context to achieve robust recognition in the wild.
 The following sections describe the motivation, system design, and evaluation of EgoLog.
 
 \input{chapters/egolog/01__intro.tex}
@@ -6,3 +6,5 @@ The following sections describe the motivation, system design, and evaluation of
 \input{chapters/egolog/03__background.tex}
 \input{chapters/egolog/04__system.tex}
 \input{chapters/egolog/05__eval.tex}
+
+The system's privacy boundary and deployment safeguards are discussed in Section~\ref{sec:thesis_privacy}.

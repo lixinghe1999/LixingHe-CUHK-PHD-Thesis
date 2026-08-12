@@ -104,7 +104,7 @@ Coupling on Head-mounted Wearables} % needs to match title on DAC
 \degreefield{Information Engineering} % Official name of subject as listed in GSAS
                                 % handbook
 \department{Information Engineering} % official name of department
-\degreemonth{July} % Month of Defense (i.e. month when DAC was signed)
+\degreemonth{August} % Month of Defense (i.e. month when DAC was signed)
 \degreeyear{2026} % Year the DAC was signed
 \principaladvisor{Professor XING Guoliang} % Your main thesis advisor
 
@@ -173,7 +173,7 @@ Together, these systems show how earphone-class head-mounted wearables can becom
 
 % Introductory chapter. Comment out if you don't have an intro chapter, but I
 % think most committees expect you to have one.
-% Don't number the intro chapter, but add to to the table of contents
+% Don't number the intro chapter, but add to the table of contents
 %\addcontentsline{toc}{chapter}{Introduction}
 \chapter{Introduction}\label{ch:intro}
 \input{chapters/chapter1-intro.tex}
@@ -187,33 +187,88 @@ Together, these systems show how earphone-class head-mounted wearables can becom
 \chapter{VibVoice: Bone-Conducted Vibration Speech Enhancement on Head-Mounted Wearables}\label{ch:vibvoice}
 \input{chapters/chapter4-vibvoice.tex}
 
-\chapter{EgoLog: Fine-Grained Daily Logging with Head-Mounted and Mobile Wearables}\label{ch:egolog}
+\chapter{EgoLog: Fine-Grained Daily Logging with Head-Mounted Wearables and Mobile Devices}\label{ch:egolog}
 \input{chapters/chapter5-egolog.tex}
 
 \chapter{CoHear: Conversation Enhancement via Multi-Earphone Collaboration}\label{ch:cohear}
 \input{chapters/chapter6-cohear.tex}
 
-\chapter{Conclusion and Future Work}\label{ch:conclusion}
+\chapter{Conclusion and Discussion}\label{ch:conclusion}
 
 \section{Conclusion}
 
-This thesis studies how head-mounted wearables can sense human behavior when the user and the surrounding environment are tightly coupled. Rather than treating this coupling only as interference, the thesis models it as a source of structure. The resulting framework organizes wearable sensing into three dimensions: \textit{differentiation}, which separates user-specific signals from mixtures; \textit{fusion}, which uses environmental context to interpret user behavior; and \textit{collaboration}, which uses interactions among multiple users and devices.
+This thesis studies how HMWs can sense human behavior when the user and the surrounding environment are tightly coupled. Rather than treating this coupling only as interference, the thesis models it as a source of structure. The resulting framework organizes wearable sensing into three dimensions: \textit{differentiation}, which separates user-specific signals from mixtures; \textit{fusion}, which uses environmental context to interpret user behavior; and \textit{collaboration}, which uses interactions among multiple users and devices.
 
-The three systems developed in this thesis instantiate these dimensions on earphone-class head-mounted wearables. VibVoice shows that bone-conducted vibration measured by an earphone IMU can serve as a user-specific reference for speech enhancement. EgoLog shows that ambient sound and motion can be jointly modeled to produce fine-grained, context-aware activity logs on mobile and head-mounted devices. CoHear shows that conversation structure and peer-device observations can be used to enhance speech in overlapping multi-user scenes without fixed infrastructure. Together, these systems support the central claim of the thesis: head-mounted wearables become more capable when they model the physical, contextual, and social structure around the user, rather than assuming that the user can be sensed independently from the environment.
+The three systems developed in this thesis instantiate these dimensions on HMWs and their companion devices. VibVoice instantiates \textit{differentiation} by using bone-conducted vibration measured by an earphone IMU as a user-specific reference for speech enhancement. EgoLog instantiates \textit{fusion} by jointly modeling ambient sound, motion, and scenario context to produce fine-grained activity logs on HMWs and mobile devices. CoHear instantiates \textit{collaboration} by using conversation structure and peer-device observations to enhance speech in overlapping multi-user scenes without fixed infrastructure. Together, these systems support the central claim of the thesis: HMWs become more capable when they model the physical, contextual, and social structure around the user, rather than assuming that the user can be sensed independently from the environment.
+
+\section{Privacy Implications}
+\label{sec:thesis_privacy}
+
+The privacy claim in this thesis is relative to camera-based sensing, rather than a guarantee that audio--motion sensing is private. Avoiding an always-on camera prevents continuous capture of faces, screens, documents, and other visual details in the wearer's field of view. Microphones and IMUs still collect sensitive information. Audio may contain intelligible speech from the wearer and nearby people, and motion or derived semantic labels may reveal identity, routines, locations, and social interactions. Privacy therefore depends on what each system sends beyond the earphone, how long that information is retained, and which devices or services can access it. Table~\ref{tab:privacy_boundaries} summarizes these system boundaries.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Privacy boundaries in the three prototype systems.}
+\label{tab:privacy_boundaries}
+\begin{tabular}{p{0.14\linewidth}p{0.38\linewidth}p{0.38\linewidth}}
+\toprule
+\textbf{System} & \textbf{Information leaving the earphone} & \textbf{Main exposure} \\
+\midrule
+VibVoice & Microphone audio and raw accelerometer samples sent to a companion device & Speech content and wearer-specific vocal vibration \\
+EgoLog & Audio and IMU streams sent to the phone; derived labels and confidence scores sent to the cloud for low-confidence cases & Bystander speech, activity history, routines, and location or social context \\
+CoHear & Speaker embeddings, relative geometry, group membership, and optional relay audio shared with participating nodes & Voice linkage, conversation content, proximity, and social relationships \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The prototypes use four processing domains: the earphone, a companion device, peer devices, and, for part of EgoLog, a cloud service. VibVoice moves microphone audio and raw accelerometer measurements off the earphone for joint inference. EgoLog sends audio and IMU streams to the companion smartphone, where each window is converted into sound-event classes, coarse motion states, spatial categories, and a preliminary scenario prediction. Only this textual representation is sent to the cloud LLM, and a query is made only when the local model has low confidence. CoHear shares relative geometry, conversation membership, speaker embeddings, and, when enabled, relay audio among participating nodes. These intermediate representations may disclose less than camera frames or raw recordings, but they are not anonymous: speaker embeddings can link a voice across sessions, while geometry and group membership can expose social relationships.
+
+Table~\ref{tab:privacy_safeguards} translates these risks into safeguards for a deployed system. The safeguards cover raw and derived data because semantic labels, speaker embeddings, and interaction histories may remain sensitive even after raw recordings are discarded.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Privacy safeguards required for deployment. These safeguards were not evaluated in the prototypes.}
+\label{tab:privacy_safeguards}
+\begin{tabular}{p{0.11\linewidth}p{0.27\linewidth}p{0.30\linewidth}p{0.20\linewidth}}
+\toprule
+\textbf{System} & \textbf{Local handling} & \textbf{External communication} & \textbf{User control} \\
+\midrule
+VibVoice & Use short-lived raw audio and IMU buffers; retain personalization data only with consent & Encrypt the earphone--phone link; run inference locally when the hardware permits & Indicate active sensing; allow pause and deletion of personalization data \\
+EgoLog & Store logs and the adaptation cache locally with a configurable retention period & Send derived text only for low-confidence cases; encrypt cloud requests & Allow users to inspect, correct, export, and delete logs \\
+CoHear & Use session-scoped speaker identifiers; discard relay audio after processing & Authenticate participants; encrypt peer traffic end to end & Require explicit group participation; allow users to leave or mute immediately \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+EgoLog's local adaptation cache, for example, can develop into a detailed behavioral record. Data sent to cloud or peer devices should be limited to what the task requires. For EgoLog, this means treating the cloud as untrusted and retaining the current policy of sending derived text only for uncertain cases. Running early feature extraction or the complete pipeline on the earphone would reduce exposure further, although current wearable computation and energy budgets constrain this option. The measures in Table~\ref{tab:privacy_safeguards} are deployment requirements rather than properties established by the prototype evaluations.
+
+\section{Limitations}
+\label{sec:thesis_limitations}
+
+\paragraph{VibVoice.}
+VibVoice was evaluated with 15 unseen speakers, English read speech, three earphone models, and a limited set of acoustic environments. The reduced-bandwidth tests use downsampled EarSense data rather than commodity IMUs and therefore do not capture their noise, quantization, mounting, or filtering. Future work should test native consumer hardware and broader users, languages, spontaneous speech, and environments.
+
+\paragraph{EgoLog.}
+EgoLog was evaluated on public datasets with different devices and label taxonomies, together with a controlled spatial-audio dataset covering 12 activities and 14 sound events. These settings do not represent every daily routine, user, device, or acoustic environment, and personalized sound localization may require calibration for unseen users. Accuracy and F1 depend on class balance, decision thresholds, and scenario granularity, while the subjective ratings were based on presented outputs rather than long-term use. Broader day-long deployments are needed to assess generalization, usability, and energy consumption in practice.
+
+\paragraph{CoHear.}
+CoHear's physical evaluation used 30 minutes of conversation from six volunteers in one motion-capture room, so several experiments relied on simulated acoustics and network conditions. The results may not generalize to larger groups, heterogeneous commercial devices, unseen environments, or unstable networks. Position error, orientation error, SNR, and short-clip MOS do not fully capture intelligibility, listening comfort, or communication success, and the user studies involved 20 college students online and five participants in the live test. Larger and longer deployments are needed to establish real-world benefit and acceptance.
 
 \section{Future Work}
 
 The systems in this thesis also reveal several limits of current head-mounted sensing. VibVoice relies on EarSense, an external hardware platform whose 1.6~kHz IMU sampling rate is higher than that of many commercial earphones. EgoLog and CoHear depend on model components that still require careful adaptation across users, devices, and environments. All three systems offload substantial computation to companion smartphones, which introduces latency and exposes continuous sensing data outside the wearable. These limits point to the next stage of the research: moving from task-specific systems toward unified, efficient, and long-term deployable models of user--environment coupling.
 
 \begin{itemize}
-  \item \textbf{Embodied sensing on head-mounted wearables:}
-  This thesis focuses on audio and IMU sensing and intentionally avoids cameras for privacy and deployability. Future head-mounted platforms may include more privacy-preserving visual sensors, such as event cameras or low-resolution depth sensors on AR glasses. A natural next step is to study how these sensors can complement audio and motion without changing the privacy assumptions that motivate this thesis. Unlike robots or room-scale sensing systems, head-mounted devices move with the user and observe the world from the user's own position. This makes them a useful platform for embodied assistants that understand speech, activity, attention, and social context from a first-person perspective.
+  \item \textbf{Embodied sensing on HMWs:}
+  This thesis focuses on audio and IMU sensing and intentionally avoids cameras for privacy and deployability. Future HMW platforms may include visual sensors with narrower privacy exposure, such as event cameras or low-resolution depth sensors on AR glasses. A natural next step is to study how these sensors can complement audio and motion without changing the privacy assumptions that motivate this thesis. Unlike robots or room-scale sensing systems, HMWs move with the user and observe the world from the user's own position. This makes them a useful platform for embodied assistants that understand speech, activity, attention, and social context from a first-person perspective.
 
   \item \textbf{Proactive user understanding:}
   The systems in this thesis respond to sensing tasks that are defined in advance: enhance this speech signal, recognize this activity, or recover this conversation. Future systems could use the same coupling framework to infer when assistance is needed. For example, an earphone could detect that the wearer has entered a noisy meeting, identify the active conversation group, and adjust speech enhancement without an explicit command. This direction requires models that combine explicit user intent with contextual cues, and it will likely connect the \textit{fusion} and \textit{collaboration} dimensions more tightly.
 
   \item \textbf{Deployment and computation:}
-  The current systems rely on companion smartphones for the most expensive computation. This is practical for prototypes, but it adds communication latency and weakens privacy because raw or intermediate sensing data must leave the earphone. Applications such as hearing assistance are especially sensitive to delay. Future work should move more inference onto earphone-class hardware through model compression, quantization, knowledge distillation, and neural architecture search for DSP and MCU platforms. Efficient on-device models are essential if differentiation, fusion, and collaboration are to run continuously in daily life.
+  The current systems rely on companion smartphones for the most expensive computation. This is practical for prototypes, but it adds communication latency and weakens privacy because raw or intermediate sensing data must leave the wearable and be processed on a companion device. In systems such as EgoLog, derived sensor information may also be transmitted to a cloud service. Applications such as hearing assistance are especially sensitive to delay. Future work should move more inference onto earphone-class hardware through model compression, quantization, knowledge distillation, and neural architecture search for DSP and MCU platforms. Efficient on-device models are essential if differentiation, fusion, and collaboration are to run continuously in daily life.
 
   \item \textbf{Unified models and weakly supervised learning:}
   The three systems in this thesis are designed separately, but their inputs and failure modes overlap. A broader research direction is to learn shared representations from in-the-wild audio, motion, and interaction data. Most of this data will be weakly labeled or unlabeled, because users will generate it naturally during daily life. Self-supervised and weakly supervised learning may therefore be necessary for building models that transfer across users, devices, and environments. This is particularly important for tasks such as sound localization and conversation understanding, where labeled ear-level datasets remain limited.

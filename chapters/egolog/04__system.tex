@@ -165,7 +165,7 @@ For the upstream path, EgoLog uses the scenario recognition capability of LLMs, 
 Specifically, the estimated scenarios are added to the prompt, augmented by the text: "the preliminary scenario estimation is <scenario, confidence>."
 However, frequent queries to the cloud service raise concerns about cost, privacy, and latency. Ideally, all modules of EgoLog should be executable on a mobile device if the performance is sufficient. Consequently, we propose a collaborative framework that strategically uses the cloud LLM to enhance the local model. Specifically, a confidence threshold (0.5) is set for the local scenario recognition model. A cloud query is triggered only when the local model's confidence is low.
 
-Complementing the upstream process, we also propose a downstream collaboration where the cloud LLM's output can conversely assist the local model. Specifically, the data points associated with uncertain cases (which were uploaded to the LLM), along with the LLM's refined results, are cached and used to fine-tune the local model, which enables continuous on-device improvement.
+Complementing the upstream process, we also propose a downstream collaboration where the cloud LLM's output can assist the local model. EgoLog sends the derived textual representation of an uncertain case, rather than its raw audio or IMU samples, to the LLM. The corresponding local sample and the LLM's refined label are then cached on the local device and used to fine-tune the local model, enabling continuous on-device improvement.
 Within the scope of EgoLog, we do not consider adding new class to the local model since the required data can be huge, which leads to a long time for waiting.
 
 
